@@ -1,0 +1,18 @@
+.node text,
+.node circle {
+    cursor: pointer;
+}
+
+.node circle:hover {
+    stroke-width: 2.5;
+}
+
+.node text:hover {
+    text-decoration: underline;
+}
+
+.node.selected {
+    outline: 2px lightgrey solid;
+    outline-offset: 5px;
+    font-weight: bold
+}

@@ -27,7 +27,7 @@ jobs:
       - run: npm test
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: tag version
         run: |
           version=$(node -e "console.log(require('./package.json').version);")

@@ -6,7 +6,7 @@ It retrieves the SDLB JSON schemas and renders them as dynamic trees using the [
 ## Installation
 
 ```
-npm install sdl-schema-viewer
+npm install sdlb-schema-viewer
 ```
 
 ## Usage

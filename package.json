@@ -59,5 +59,9 @@
     "transformIgnorePatterns": [
       "node_modules/@types/d3"
     ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smart-data-lake/schema-viewer"
   }
 }

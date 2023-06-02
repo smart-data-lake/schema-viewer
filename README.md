@@ -1,20 +1,52 @@
-## Available Scripts
+# SDLB Schema Viewer
 
-In the project directory, you can run:
+A React component for visualizing the [Smart Data Lake Builder](https://github.com/smart-data-lake/smart-data-lake) config schema.
+It retrieves the SDLB JSON schemas and renders them as dynamic trees using the [d3](https://d3js.org/) library.
 
-### `npm start`
+## Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+npm install sdl-schema-viewer
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Usage
 
-### `npm test`
+Inside JSX:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```jsx
+import { SchemaViewer } from 'sdl-schema-viewer';
 
-### `npm run build`
+<div style={{height: '...'}}>
+  <SchemaViewer schemasUrl="..."/>
+</div>
+```
 
-Compiles the components into the `dist` folder to be used by other React projects.
+The schemasUrl must be a URL pointing to a REST endpoint which returns a list of possible schemas. The schema to be
+visualized is then loaded from `{schemasUrl}/{schema}`. For example, if GET request to `https://myschemas` returns the list
+`[schema1.json, schema2.json, schema3.json]`, the schemas will be retrieved from
+```
+https://myschemas/schema1.json
+https://myschemas/schema2.json
+https://myschemas/schema3.json
+```
+
+## Styling
+
+The `SchemaViewer` component uses [@mui/joy](https://www.npmjs.com/package/@mui/joy) for component styling. 
+The default theme can be overridden by providing a custom theme:
+
+```jsx
+import { SchemaViewer } from 'sdl-schema-viewer';
+import { CssVarsProvider, extendTheme } from "@mui/joy";
+
+const theme = extendTheme({...});
+
+<div style={{height: '...'}}>
+    <CssVarsProvider theme={theme}>
+        <SchemaViewer schemasUrl="..."/>
+    </CssVarsProvider>
+</div>
+```
+
+See https://mui.com/joy-ui/customization/theme-colors/ for more information about color
+theme configuration.

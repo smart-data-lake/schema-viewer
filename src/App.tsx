@@ -2,6 +2,9 @@ import React from 'react';
 import SchemaViewer from './components/SchemaViewer';
 import './App.css';
 
+/**
+ * This component is only used for local testing and is not part of the npm package.
+ */
 function App() {
 
   return (

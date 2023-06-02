@@ -1,5 +1,6 @@
 {
   "name": "sdlb-schema-viewer",
+  "description": "React component for visualizing the Smart Data Lake Builder config schema.",
   "version": "1.0.0",
   "main": "./dist/main.js",
   "peerDependencies": {

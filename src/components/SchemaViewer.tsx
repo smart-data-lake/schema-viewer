@@ -19,6 +19,9 @@ import {
   updateSchemaInUrlParams
 } from '../utils/SchemaSerialization';
 
+/**
+ * Base component for the schema viewer.
+ */
 export default function SchemaViewer(props: { schemasUrl: string }) {
   const [selectedSchemaName, setSelectedSchemaName] = useState<string>();
   const [schema, setSchema] = useState<SchemaNode | null>(null);

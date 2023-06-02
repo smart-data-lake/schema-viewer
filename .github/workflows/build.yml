@@ -18,10 +18,6 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
     - uses: actions/checkout@v3
-    - name: git config
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
@@ -31,9 +27,3 @@ jobs:
     - run: npx eslint src --ext .js,.jsx,.ts,.tsx --max-warnings=0
     - run: npm run build
     - run: npm test
-
-    - name: tag version
-      run: |
-        version=$(node -e "console.log(require('./package.json').version);")
-        git tag -f ${version} -m "Release ${version}"
-        git push origin ${version} # push tag

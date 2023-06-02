@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: git config
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -24,3 +28,8 @@ jobs:
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: tag version
+        run: |
+          version=$(node -e "console.log(require('./package.json').version);")
+          git tag -f ${version} -m "Release ${version}"
+          git push origin ${version} # push tag

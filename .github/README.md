@@ -3,7 +3,7 @@
 This is a React component for visualizing the Smart Data Lake Builder config schema.
 It retrieves the SDLB JSON schemas and renders them as dynamic trees using the [d3](https://d3js.org/) library.
 
-# Getting Started
+## Getting Started
 
 For building and testing the component, Node.js (Version 16 or 18) and npm are required. 
 

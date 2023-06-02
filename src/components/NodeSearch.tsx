@@ -21,6 +21,7 @@ export default function NodeSearch(props: { schema: SchemaNode | null, selectedN
     } else {
       setOptions([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.schema]);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function NodeSearch(props: { schema: SchemaNode | null, selectedN
     if (!props.selectedNode) {
       rerenderSearch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.selectedNode]);
 
   function rerenderSearch(): void {

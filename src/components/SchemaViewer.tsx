@@ -47,6 +47,7 @@ export default function SchemaViewer(props: { schemasUrl: string }) {
         deletePathFromUrlParams();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSchemaName])
 
   useEffect(() => {

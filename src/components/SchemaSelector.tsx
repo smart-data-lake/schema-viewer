@@ -19,6 +19,7 @@ export default function SchemaSelector(props: { schemasUrl: string, selectedSche
     if (schemaNames.length > 0) {
       props.setSelectedSchemaName(getInitialSchema());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schemaNames]);
 
   function getInitialSchema(): string {

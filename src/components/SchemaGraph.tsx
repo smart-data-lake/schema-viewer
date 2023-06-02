@@ -35,13 +35,14 @@ export default function SchemaGraph(props: { schema: SchemaNode | null, setSelec
       newSchemaTree.initTree();
       setSchemaTree(newSchemaTree);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.schema]);
 
   useEffect(() => {
     if (props.selectedNode && schemaTree) {
       schemaTree.focusOnNode(props.selectedNode);
     }
-  }, [props.selectedNode]);
+  }, [props.selectedNode, schemaTree]);
 
   return (
     <Box sx={{backgroundColor: theme.palette.background.level1, height: '100%', display: 'flex'}}>

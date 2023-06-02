@@ -1,5 +1,5 @@
 import { RootNode, ClassNode, PropertyNode, SchemaType, SchemaNode } from './SchemaNode';
-import { JSONSchema7, JSONSchema7Type } from 'json-schema';
+import { JSONSchema7 } from 'json-schema';
 
 export type JSONSchema = JSONSchema7;
 

@@ -14,7 +14,7 @@ npm install sdlb-schema-viewer
 Inside JSX:
 
 ```jsx
-import { SchemaViewer } from 'sdl-schema-viewer';
+import { SchemaViewer } from 'sdlb-schema-viewer';
 
 <div style={{height: '...'}}>
   <SchemaViewer schemasUrl="..."/>
@@ -36,7 +36,7 @@ The `SchemaViewer` component uses [@mui/joy](https://www.npmjs.com/package/@mui/
 The default theme can be overridden by providing a custom theme:
 
 ```jsx
-import { SchemaViewer } from 'sdl-schema-viewer';
+import { SchemaViewer } from 'sdlb-schema-viewer';
 import { CssVarsProvider, extendTheme } from "@mui/joy";
 
 const theme = extendTheme({...});

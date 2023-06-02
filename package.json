@@ -1,0 +1,62 @@
+{
+  "name": "sdlb-schema-viewer",
+  "version": "0.1.0",
+  "main": "./dist/main.js",
+  "peerDependencies": {
+    "@emotion/react": "11.x",
+    "@emotion/styled": "11.x",
+    "@mui/icons-material": "5.x",
+    "@mui/joy": "5.x || ^5.0.0-alpha.79",
+    "d3": "7.x"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/d3": "^7.4.0",
+    "@types/jest": "^27.5.2",
+    "@types/json-schema": "^7.0.11",
+    "@types/node": "^16.18.25",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.1",
+    "copyfiles": "^2.4.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "tsc && npm run copy-files",
+    "copy-files": "copyfiles -u 1 src/components/**/*.css dist/",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/@types/d3"
+    ]
+  }
+}

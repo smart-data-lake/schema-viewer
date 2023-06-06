@@ -3,13 +3,16 @@ import SchemaViewer from './SchemaViewer';
 import { render, screen } from '@testing-library/react';
 import exampleSchema from '../example-schema.json';
 
-const schemasUrl = 'http://testSchemas/';
-
 test('example schema is loaded and rendered without errors', async () => {
   defineMissingProperties();
-  mockRequests();
 
-  render(<SchemaViewer schemasUrl={schemasUrl} />)
+  render(<SchemaViewer
+    loadSchemaNames={() => Promise.resolve(['schema1.json', 'schema2.json'])}
+    loadSchema={schemaName => {
+      expect(schemaName).toBe('schema2.json');
+      return Promise.resolve(exampleSchema)
+    }}
+  />);
 
   expect(await screen.findByText('schema{ }')).toBeInTheDocument();
 });
@@ -39,20 +42,4 @@ function defineMissingProperties(): void {
       y: 0,
     }),
   });
-}
-
-function mockRequests(): void {
-  global.fetch = jest.fn((url: string) => {
-    if (url === schemasUrl) {
-      return Promise.resolve({
-        json: () => Promise.resolve(['schema1.json', 'schema2.json'])
-      });
-    } else if (url === schemasUrl + 'schema2.json') {
-      return Promise.resolve({
-        json: () => Promise.resolve(exampleSchema)
-      });
-    } else {
-      throw new Error(`Unexpected request ${url}`);
-    }
-  }) as jest.Mock;
 }

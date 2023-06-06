@@ -17,17 +17,52 @@ Inside JSX:
 import { SchemaViewer } from 'sdlb-schema-viewer';
 
 <div style={{height: '...'}}>
-  <SchemaViewer schemasUrl="..."/>
+  <SchemaViewer loadSchemaNames={...} loadSchema={...} />
 </div>
 ```
 
-The schemasUrl must be a URL pointing to a REST endpoint which returns a list of possible schemas. The schema to be
-visualized is then loaded from `{schemasUrl}/{schema}`. For example, if GET request to `https://myschemas` returns the list
-`[schema1.json, schema2.json, schema3.json]`, the schemas will be retrieved from
-```
-https://myschemas/schema1.json
-https://myschemas/schema2.json
-https://myschemas/schema3.json
+The `SchemaViewer` component has the following properties:
+* `loadSchemaNames`: A function for loading a list of schema names. These are the schemas that a user can select.
+* `loadSchema`: A function for loading a JSON schema which takes the selected schema name as an input parameter.
+
+## Example
+
+This example shows how to visualize a simple example schema.
+
+```jsx
+import { SchemaViewer } from 'sdlb-schema-viewer';
+
+<div style={{height: '100vh'}}>
+    <SchemaViewer loadSchemaNames={loadSchemaNames} loadSchema={loadSchema}/>
+</div>
+
+const exampleSchema =
+    {
+        "title": "Person",
+        "type": "object",
+        "properties": {
+            "firstName": {
+                "type": "string",
+                "description": "The person's first name."
+            },
+            "lastName": {
+                "type": "string",
+                "description": "The person's last name."
+            },
+            "age": {
+                "description": "Age in years which must be equal to or greater than zero.",
+                "type": "integer",
+            }
+        }
+    }
+
+function loadSchemaNames() {
+    return Promise.resolve(['exampleSchema.json']);
+}
+
+function loadSchema(schemaName) {
+    return schemaName === 'exampleSchema.json' ? Promise.resolve(exampleSchema) : Promise.reject();
+}
 ```
 
 ## Styling
@@ -43,7 +78,7 @@ const theme = extendTheme({...});
 
 <div style={{height: '...'}}>
     <CssVarsProvider theme={theme}>
-        <SchemaViewer schemasUrl="..."/>
+        <SchemaViewer loadSchemaNames={...} loadSchema={...}/>
     </CssVarsProvider>
 </div>
 ```

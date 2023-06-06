@@ -2,18 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Select, Option } from '@mui/joy';
 import { getSchemaFromUrlParams } from '../utils/SchemaSerialization';
 
-export default function SchemaSelector(props: { schemasUrl: string, selectedSchemaName: string | undefined, setSelectedSchemaName: (name: string) => void }) {
+export default function SchemaSelector(props: { loadSchemaNames: () => Promise<string[]>, selectedSchemaName: string | undefined, setSelectedSchemaName: (name: string) => void }) {
   const [schemaNames, setSchemaNames] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch(props.schemasUrl)
-      .then(res => res.json())
+    props.loadSchemaNames()
       .then(availableSchemas => {
-        let schemas = availableSchemas as string[];
-        schemas.sort((s1, s2) => s2.localeCompare(s1))
-        setSchemaNames(schemas);
+        availableSchemas.sort((s1, s2) => s2.localeCompare(s1))
+        setSchemaNames(availableSchemas);
       });
-  }, [props.schemasUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadSchemaNames]);
 
   useEffect(() => {
     if (schemaNames.length > 0) {

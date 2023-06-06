@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { ClassNode, PropertyNode, RootNode, SchemaNode, SchemaType } from './SchemaNode';
+import { ClassNode, PropertyNode, RootNode, SchemaNode } from './SchemaNode';
 import D3NodePainter, { SchemaTreeColors } from './D3NodePainter';
 import * as d3 from 'd3';
 import { hierarchy, HierarchyPointNode } from 'd3';

@@ -1,14 +1,18 @@
 import { ClassNode, PropertyNode, RootNode, SchemaNode, SchemaVisitor, toVisitor } from './SchemaNode';
-import { hierarchy, HierarchyPointNode, TreeLayout } from 'd3';
 import * as d3 from 'd3';
+import { hierarchy, HierarchyPointNode, TreeLayout } from 'd3';
 import D3Zoom from './D3Zoom';
 import D3NodePainter, { nodeClass, NodeSelection, SchemaTreeColors } from './D3NodePainter';
 import D3LinkPainter from './D3LinkPainter';
-import { formatNodeId, getCoordinates, setCoordinates, swap } from './D3NodeUtils';
+import { formatNodeId, getCoordinates, labelVisitor, setCoordinates, swap } from './D3NodeUtils';
 
 const animationDurationMillis = 400;
-const maxLabelLength = 50; // TODO do this dynamically but not by taking the global maximum
 const heightPerNode = 35;
+
+// constants for the spacing between the levels of the tree
+const minLabelSpace = 30;
+const labelSpaceFactor = 8;
+const labelSpaceOffset = 100;
 
 const selectedClass = 'selected';
 
@@ -44,7 +48,7 @@ export default class D3SchemaTree {
   }
 
   private drawTree(): HierarchyPointNode<SchemaNode> {
-    const maxNodesPerLevel = calculateMaximalVisibleLevelWidth(this.schema);
+    const maxNodesPerLevel = calculateMaxVisibleLevelWidth(this.schema);
     const height = maxNodesPerLevel * heightPerNode;
     this.treeLayout.size(swap(this.zoom.getViewerWidth(), height));
 
@@ -60,8 +64,9 @@ export default class D3SchemaTree {
   }
 
   private setDistanceBetweenLevels(root: HierarchyPointNode<SchemaNode>): void {
+    const levelPositions = calculateLevelPositions(root);
     root.descendants().forEach(n => {
-      setCoordinates(n, [n.depth * maxLabelLength * 8, getCoordinates(n)[1]]);
+      setCoordinates(n, [levelPositions.get(n.depth)!, getCoordinates(n)[1]]);
     });
   }
 
@@ -162,7 +167,13 @@ export default class D3SchemaTree {
   }
 }
 
-function calculateMaximalVisibleLevelWidth(schema: SchemaNode) {
+const expandOnlyRootNodeVisitor: SchemaVisitor<void> = {
+  visitClassNode: (n: ClassNode) => n.showChildren = false,
+  visitPropertyNode: (n: PropertyNode) => n.showChildren = false,
+  visitRootNode: (n: RootNode) => n.showChildren = true
+}
+
+function calculateMaxVisibleLevelWidth(schema: SchemaNode) {
   const levelWidths = [1];
 
   function countVisibleChildren(n: SchemaNode, level: number): void {
@@ -182,8 +193,31 @@ function calculateMaximalVisibleLevelWidth(schema: SchemaNode) {
   return Math.max(...levelWidths);
 }
 
-const expandOnlyRootNodeVisitor: SchemaVisitor<void> = {
-  visitClassNode: (n: ClassNode) => n.showChildren = false,
-  visitPropertyNode: (n: PropertyNode) => n.showChildren = false,
-  visitRootNode: (n: RootNode) => n.showChildren = true
+function calculateLevelPositions(root: HierarchyPointNode<SchemaNode>): Map<number, number> {
+  const distanceToNextLevel = calculateDistancesBetweenLevels(root);
+  const maxLevel = Math.max(...root.descendants().map(n => n.depth));
+  const levelPositions = new Map<number, number>();
+  levelPositions.set(0, 0);
+  for (let i=1; i <= maxLevel; ++i) {
+    const levelPosition = levelPositions.get(i-1)! + distanceToNextLevel.get(i-1)!;
+    levelPositions.set(i, levelPosition);
+  }
+  return levelPositions;
+}
+
+function calculateDistancesBetweenLevels(root: HierarchyPointNode<SchemaNode>): Map<number, number> {
+  const maxLabelLengths = calculateMaxVisibleLabelLengthPerLevel(root);
+  return new Map(Array.from(maxLabelLengths)
+    .map(([level, maxLabelLength]) => ([level, Math.max(minLabelSpace, maxLabelLength)]))
+    .map(([level, labelSpace]) => ([level, labelSpaceOffset + labelSpace * labelSpaceFactor])));
+}
+
+function calculateMaxVisibleLabelLengthPerLevel(root: HierarchyPointNode<SchemaNode>): Map<number, number> {
+  const maxLabelLengths = new Map<number, number>();
+  root.descendants().forEach(n => {
+    const labelLength = n.data.accept(labelVisitor).length;
+    const currentMax = maxLabelLengths.get(n.depth);
+    maxLabelLengths.set(n.depth, currentMax ? Math.max(currentMax, labelLength) : labelLength);
+  })
+  return maxLabelLengths;
 }

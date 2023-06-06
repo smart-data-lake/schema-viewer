@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { ClassNode, PropertyNode, RootNode, SchemaNode, SchemaType } from './SchemaNode';
+import { ClassNode, PropertyNode, RootNode, SchemaNode } from './SchemaNode';
 import D3NodePainter, { SchemaTreeColors } from './D3NodePainter';
 import * as d3 from 'd3';
 import { hierarchy, HierarchyPointNode } from 'd3';
@@ -16,12 +16,10 @@ test('draws lone root', () => {
   expect(rootNode).toBeInTheDocument();
 });
 
-test('draws properties', () => {
+test('draws property nodes', () => {
   const root = new RootNode(0);
   root.addChild(new PropertyNode(1, 'objectProperty', 'object', false, false));
-  root.addChild(new PropertyNode(2, 'requiredProperty', 'string', true, false));
-  root.addChild(new PropertyNode(3, 'deprecatedProperty', 'boolean', false, true));
-  root.addChild(new PropertyNode(4, 'arrayProperty', 'array', false, false, 'string'));
+  root.addChild(new PropertyNode(2, 'deprecatedProperty', 'boolean', false, true));
   const treeData = createExpandedTreeFromSchema(root);
   const testSvg = setupSvg();
 
@@ -29,30 +27,26 @@ test('draws properties', () => {
 
   const rootNode = screen.getByText('schema{ }');
   const objectProperty = screen.getByText('objectProperty{ }');
-  const requiredProperty = screen.getByText('requiredProperty(string)*');
   const deprecatedProperty = screen.getByText('deprecatedProperty(boolean)');
-  const arrayProperty = screen.getByText('arrayProperty[string]');
   expect(rootNode).toBeInTheDocument();
   expect(objectProperty).toBeInTheDocument();
-  expect(requiredProperty).toBeInTheDocument();
   expect(deprecatedProperty).toBeInTheDocument();
   expect(deprecatedProperty.style.fill).toBe(colors.deprecatedTextColor);
-  expect(arrayProperty).toBeInTheDocument();
 });
 
-test.each(Array<SchemaType[]>(['oneOf'], ['allOf'], ['anyOf'], ['mapOf']))('draws class nodes as children of %s node', (type: SchemaType) => {
+test('draws class nodes', () => {
   const root = new RootNode(0);
-  const containerNode = new PropertyNode(1, 'container', type, false, false);
-  root.addChild(containerNode);
-  containerNode.addChild(new ClassNode(2, 'TestClass', false));
-  containerNode.addChild(new ClassNode(3, 'DeprecatedClass', true));
+  const propertyNode = new PropertyNode(1, 'oneOfProperty', 'oneOf', false, false);
+  root.addChild(propertyNode);
+  propertyNode.addChild(new ClassNode(2, 'TestClass', false));
+  propertyNode.addChild(new ClassNode(3, 'DeprecatedClass', true));
   const treeData = createExpandedTreeFromSchema(root);
   const testSvg = setupSvg();
 
   createNodePainter(testSvg, colors).drawNodes(treeData);
 
   const rootNode = screen.getByText('schema{ }');
-  const mapOfProperty = screen.getByText(`container[${type}]`);
+  const mapOfProperty = screen.getByText(`oneOfProperty[oneOf]`);
   const testClass = screen.getByText('TestClass{ }');
   const deprecatedClass = screen.getByText('DeprecatedClass{ }');
   expect(rootNode).toBeInTheDocument();

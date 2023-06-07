@@ -9,7 +9,9 @@ import StyledSvg from './StyledSvg';
 import GraphLegend from './GraphLegend';
 import { SchemaTreeColors } from '../utils/D3NodePainter';
 
-export default function SchemaGraph(props: { schema: SchemaNode | null, setSelectedNode: (n: SchemaNode | null) => void, selectedNode: SchemaNode | null }) {
+export default function SchemaGraph(props: {
+  schema: SchemaNode | null, setSelectedNode: (n: SchemaNode | null) => void, selectedNode: SchemaNode | null
+}) {
   const treeSvg = useRef<SVGSVGElement>();
   const [schemaTree, setSchemaTree] = useState<D3SchemaTree>();
   const [zoom, setZoom] = useState<D3Zoom>();

@@ -18,6 +18,7 @@ import {
   updatePathInUrlParams,
   updateSchemaInUrlParams
 } from '../utils/SchemaSerialization';
+import DownloadButton from './DownloadButton';
 
 interface SchemaViewerProps {
   /**
@@ -40,14 +41,20 @@ export default function SchemaViewer(props: SchemaViewerProps) {
   const [schema, setSchema] = useState<SchemaNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<SchemaNode | null>(null);
   const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
+  const [schemaBlob, setSchemaBlob] = useState<Blob | null>(null); // for download
 
   function initSchema(schemaName: string): void {
     // between loading schemas we set the old schema to null to prevent any confusion between the schemas
     setSelectedNode(null);
     setSchema(null);
-    props.loadSchema(schemaName)
+    setSchemaBlob(null);
+    const loadedSchema = props.loadSchema(schemaName);
+    loadedSchema
       .then(schemaJson => new SchemaParser(schemaJson as JSONSchema).parseSchema())
-      .then(setSchema)
+      .then(setSchema);
+    loadedSchema
+      .then(formatJson)
+      .then(formattedSchema => setSchemaBlob(new Blob([formattedSchema])));
   }
 
   useEffect(() => {
@@ -84,7 +91,10 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             <SchemaSelector loadSchemaNames={props.loadSchemaNames} selectedSchemaName={selectedSchemaName}
                             setSelectedSchemaName={setSelectedSchemaName} />
             <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
-            <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />
+            <Box sx={{marginLeft: 'auto'}}>
+              <DownloadButton toDownload={schemaBlob} fileName={selectedSchemaName}/>
+              <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />
+            </Box>
           </SchemaViewerHeader>
           <Box sx={{flex: 1}}>
             <SchemaGraph schema={schema} setSelectedNode={setSelectedNode} selectedNode={selectedNode} />
@@ -99,4 +109,8 @@ export default function SchemaViewer(props: SchemaViewerProps) {
       </Box>
     </CssVarsProvider>
   );
+}
+
+function formatJson(json: any): string {
+  return JSON.stringify(json, null, 2);
 }

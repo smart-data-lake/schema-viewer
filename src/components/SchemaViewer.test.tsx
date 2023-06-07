@@ -17,8 +17,10 @@ test('example schema is loaded and rendered without errors', async () => {
   expect(await screen.findByText('schema{ }')).toBeInTheDocument();
 });
 
+/**
+ * Jest uses jsdom to simulate the DOM. Some properties are missing in jsdom and need to be mocked accordingly.
+ */
 function defineMissingProperties(): void {
-  // to prevent error 'window.matchMedia is not a function'
   // see https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -34,12 +36,16 @@ function defineMissingProperties(): void {
     })),
   });
 
-  // to prevent error 'getBBox is not a function'
   Object.defineProperty(global.SVGElement.prototype, 'getBBox', {
     writable: true,
     value: jest.fn().mockReturnValue({
       x: 0,
       y: 0,
     }),
+  });
+
+  Object.defineProperty(URL, 'createObjectURL', {
+    writable: true,
+    value: jest.fn()
   });
 }

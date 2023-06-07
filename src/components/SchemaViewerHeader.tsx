@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Box } from '@mui/joy';
+import { SxProps } from '@mui/joy/styles/types';
 
 export default function SchemaViewerHeader(props: { children: ReactNode }) {
   return (
@@ -13,3 +14,11 @@ export default function SchemaViewerHeader(props: { children: ReactNode }) {
     </Box>
   );
 }
+
+export const headerButtonStyle: SxProps = {
+  marginLeft: 1,
+  borderRadius: 15,
+  backgroundColor: theme => theme.palette.background.body,
+}
+
+export const headerButtonSize = "sm";

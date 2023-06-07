@@ -65,7 +65,7 @@ export default class D3SchemaTree {
    * 2. If the vertical distances of the nodes in the first iteration are too small, the height is corrected accordingly
    *    and the layout is adapted again.
    */
-  private adaptTreeLayoutSize(): TreeLayout<SchemaNode> {
+  private adaptTreeLayoutSize(): void {
     const maxNodesPerLevel = calculateMaxVisibleLevelWidth(this.schema);
     const height = maxNodesPerLevel * heightPerNode;
     const width = this.zoom.getViewerWidth();
@@ -73,7 +73,7 @@ export default class D3SchemaTree {
     const firstIterationRoot = this.calculateHierarchy();
     const minVerticalNodeDistance = calculateMinVerticalNodeDistance(firstIterationRoot);
     const heightCorrectionFactor = Math.max(1, heightPerNode / minVerticalNodeDistance);
-    return this.treeLayout.size(swap(width, height * heightCorrectionFactor));
+    this.treeLayout.size(swap(width, height * heightCorrectionFactor));
   }
 
   /**

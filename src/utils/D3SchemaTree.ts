@@ -48,10 +48,7 @@ export default class D3SchemaTree {
   }
 
   private drawTree(): HierarchyPointNode<SchemaNode> {
-    const maxNodesPerLevel = calculateMaxVisibleLevelWidth(this.schema);
-    const height = maxNodesPerLevel * heightPerNode;
-    this.treeLayout.size(swap(this.zoom.getViewerWidth(), height));
-
+    this.adaptTreeLayoutSize();
     const root = this.calculateHierarchy();
     this.setDistanceBetweenLevels(root);
     this.nodePainter.drawNodes(root);
@@ -59,6 +56,30 @@ export default class D3SchemaTree {
     return root;
   }
 
+  /**
+   * Adapts the tree layout so that the full width is used and each node has {@link heightPerNode} vertical
+   * distance to its neighbour.
+   *
+   * The tree layout size is determined iteratively in two steps:
+   * 1. A first iteration of the layout and the node positions is calculated based on the maximal number of visible nodes per level.
+   * 2. If the vertical distances of the nodes in the first iteration are too small, the height is corrected accordingly
+   *    and the layout is adapted again.
+   */
+  private adaptTreeLayoutSize(): TreeLayout<SchemaNode> {
+    const maxNodesPerLevel = calculateMaxVisibleLevelWidth(this.schema);
+    const height = maxNodesPerLevel * heightPerNode;
+    const width = this.zoom.getViewerWidth();
+    this.treeLayout.size(swap(width, height));
+    const firstIterationRoot = this.calculateHierarchy();
+    const minVerticalNodeDistance = calculateMinVerticalNodeDistance(firstIterationRoot);
+    const heightCorrectionFactor = Math.max(1, heightPerNode / minVerticalNodeDistance);
+    return this.treeLayout.size(swap(width, height * heightCorrectionFactor));
+  }
+
+  /**
+   * Creates a hierarchy of visible nodes.
+   * The positions of these nodes are calculated based on the tree layout.
+   */
   private calculateHierarchy(): HierarchyPointNode<SchemaNode> {
     return this.treeLayout(hierarchy(this.schema, n => n.visibleChildren));
   }
@@ -191,6 +212,20 @@ function calculateMaxVisibleLevelWidth(schema: SchemaNode) {
 
   countVisibleChildren(schema, 0);
   return Math.max(...levelWidths);
+}
+
+function calculateMinVerticalNodeDistance(root: HierarchyPointNode<SchemaNode>): number {
+  let minVerticalNodeDistance = Infinity;
+  root.descendants()
+    .filter(node => node.children)
+    .forEach(node => {
+      const children = node.children!;
+      for (let i = 1; i < children.length; ++i) {
+        const verticalDistanceToNeighbour = getCoordinates(children[i])[1] - getCoordinates(children[i - 1])[1];
+        minVerticalNodeDistance = Math.min(minVerticalNodeDistance, verticalDistanceToNeighbour);
+      }
+    });
+  return minVerticalNodeDistance;
 }
 
 function calculateLevelPositions(root: HierarchyPointNode<SchemaNode>): Map<number, number> {

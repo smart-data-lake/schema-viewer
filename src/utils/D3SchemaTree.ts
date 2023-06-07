@@ -91,7 +91,7 @@ export default class D3SchemaTree {
     });
   }
 
-  private getMiddleChild(node: HierarchyPointNode<SchemaNode>) {
+  private getMiddleChild(node: HierarchyPointNode<SchemaNode>): HierarchyPointNode<SchemaNode> {
     if (!node.children) {
       throw new Error(`Node with id ${node.id} has no children!`);
     }
@@ -194,7 +194,7 @@ const expandOnlyRootNodeVisitor: SchemaVisitor<void> = {
   visitRootNode: (n: RootNode) => n.showChildren = true
 }
 
-function calculateMaxVisibleLevelWidth(schema: SchemaNode) {
+function calculateMaxVisibleLevelWidth(schema: SchemaNode): number {
   const levelWidths = [1];
 
   function countVisibleChildren(n: SchemaNode, level: number): void {

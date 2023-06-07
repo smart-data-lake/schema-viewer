@@ -20,6 +20,12 @@ export function formatNodeId(schemaNode: SchemaNode): string {
   return 'node-' + schemaNode.id;
 }
 
+export const deprecatedVisitor: SchemaVisitor<boolean> = {
+  visitClassNode: (n: ClassNode) => n.deprecated,
+  visitPropertyNode: (n: PropertyNode) => n.deprecated,
+  visitRootNode: () => false
+}
+
 export const labelVisitor: SchemaVisitor<string> = {
   visitClassNode: (n: ClassNode) => n.className + objectLabelSuffix,
   visitPropertyNode: (n: PropertyNode) => n.propertyName + getTypeSuffixForProperty(n) + getRequiredSuffix(n),

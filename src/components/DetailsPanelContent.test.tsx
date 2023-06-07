@@ -3,6 +3,8 @@ import { ClassNode, PropertyNode, SchemaType } from '../utils/SchemaNode';
 import DetailsPanelContent from './DetailsPanelContent';
 import { render, screen } from '@testing-library/react';
 
+const deprecatedText = 'deprecated';
+
 test('details are shown for property node without type details', () => {
   const title = 'testProperty';
   const type: SchemaType = 'string';
@@ -11,12 +13,10 @@ test('details are shown for property node without type details', () => {
 
   render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
 
-  const titleElement = screen.getByText(title);
-  const typeElement = screen.getByText(type);
-  const descriptionElement = screen.getByText(description);
-  expect(titleElement).toBeInTheDocument();
-  expect(typeElement).toBeInTheDocument();
-  expect(descriptionElement).toBeInTheDocument();
+  expect(screen.getByText(title)).toBeInTheDocument();
+  expect(screen.getByText(type)).toBeInTheDocument();
+  expect(screen.getByText(description)).toBeInTheDocument();
+  expect(screen.queryByText(deprecatedText)).not.toBeInTheDocument();
 });
 
 test('details are shown for property node with type details', () => {
@@ -28,41 +28,48 @@ test('details are shown for property node with type details', () => {
 
   render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
 
-  const titleElement = screen.getByText(title);
-  const typeElement = screen.getByText(`${type}: ${typeDetails}`);
-  const descriptionElement = screen.getByText(description);
-  expect(titleElement).toBeInTheDocument();
-  expect(typeElement).toBeInTheDocument();
-  expect(descriptionElement).toBeInTheDocument();
+  expect(screen.getByText(title)).toBeInTheDocument();
+  expect(screen.getByText(`${type}: ${typeDetails}`)).toBeInTheDocument();
+  expect(screen.getByText(description)).toBeInTheDocument();
+  expect(screen.queryByText(deprecatedText)).not.toBeInTheDocument();
 });
 
 test('details are shown for class node with base class', () => {
   const className = 'TestClass';
   const baseClass = 'BaseClass';
   const description = 'some description';
-  const propertyNode = new ClassNode(0, className, false, description, baseClass);
+  const classNode = new ClassNode(0, className, false, description, baseClass);
 
-  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} />)
 
-  const titleElement = screen.getByText(className);
-  const typeElement = screen.getByText(`object: ${className} extends ${baseClass}`);
-  const descriptionElement = screen.getByText(description);
-  expect(titleElement).toBeInTheDocument();
-  expect(typeElement).toBeInTheDocument();
-  expect(descriptionElement).toBeInTheDocument();
+  expect(screen.getByText(className)).toBeInTheDocument();
+  expect(screen.getByText(`object: ${className} extends ${baseClass}`)).toBeInTheDocument();
+  expect(screen.getByText(description)).toBeInTheDocument();
+  expect(screen.queryByText(deprecatedText)).not.toBeInTheDocument();
 });
 
 test('details are shown for class node without base class', () => {
   const className = 'TestClass';
   const description = 'some description';
-  const propertyNode = new ClassNode(0, className, false, description);
+  const classNode = new ClassNode(0, className, false, description);
 
-  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} />)
 
-  const titleElement = screen.getByText(className);
-  const typeElement = screen.getByText(`object: ${className}`);
-  const descriptionElement = screen.getByText(description);
-  expect(titleElement).toBeInTheDocument();
-  expect(typeElement).toBeInTheDocument();
-  expect(descriptionElement).toBeInTheDocument();
+  expect(screen.getByText(className)).toBeInTheDocument();
+  expect(screen.getByText(`object: ${className}`)).toBeInTheDocument();
+  expect(screen.getByText(description)).toBeInTheDocument();
+  expect(screen.queryByText(deprecatedText)).not.toBeInTheDocument();
 });
+
+test('deprecated text is shown for deprecated node', () => {
+  const className = 'TestClass';
+  const description = 'some description';
+  const classNode = new ClassNode(0, className, true, description);
+
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} />)
+
+  expect(screen.getByText(className)).toBeInTheDocument();
+  expect(screen.getByText(`object: ${className}`)).toBeInTheDocument();
+  expect(screen.getByText(description)).toBeInTheDocument();
+  expect(screen.getByText(deprecatedText)).toBeInTheDocument();
+})

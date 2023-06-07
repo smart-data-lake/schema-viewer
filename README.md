@@ -85,3 +85,9 @@ const theme = extendTheme({...});
 
 See https://mui.com/joy-ui/customization/theme-colors/ for more information about color
 theme configuration.
+
+The default theme for the schema viewer can be imported with
+
+```typescript
+import { defaultTheme } from 'sdlb-schema-viewer';
+```

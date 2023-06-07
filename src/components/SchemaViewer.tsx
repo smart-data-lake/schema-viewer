@@ -91,7 +91,7 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             <SchemaSelector loadSchemaNames={props.loadSchemaNames} selectedSchemaName={selectedSchemaName}
                             setSelectedSchemaName={setSelectedSchemaName} />
             <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
-            <Box sx={{marginLeft: 'auto'}}>
+            <Box sx={{marginLeft: 'auto', display: 'flex'}}>
               <DownloadButton toDownload={schemaBlob} fileName={selectedSchemaName}/>
               <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />
             </Box>

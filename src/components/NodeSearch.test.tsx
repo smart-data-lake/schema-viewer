@@ -4,13 +4,13 @@ import NodeSearch from './NodeSearch';
 import { ClassNode, PropertyNode, RootNode, SchemaNode } from '../utils/SchemaNode';
 import userEvent from '@testing-library/user-event';
 
-test('search finds matching elements when providing two characters', () => {
+test('search finds matching elements when providing two characters', async () => {
   const schema = createDummySchema();
 
   render(<NodeSearch schema={schema} selectedNode={null} setSelectedNode={() => {}} />);
   const searchBar = screen.getByPlaceholderText('Search');
 
-  userEvent.type(searchBar, 'pr');
+  await userEvent.type(searchBar, 'pr');
   expect(screen.getAllByText('property1').length).toBe(2); // one for the label and one for the ancestor list
   expect(screen.getAllByText('property2').length).toBe(2);
   expect(screen.getByText('property3')).toBeInTheDocument();
@@ -22,13 +22,13 @@ test('search finds matching elements when providing two characters', () => {
   expect(screen.queryByText('class3')).not.toBeInTheDocument();
 });
 
-test('search finds matching elements when providing more than two characters', () => {
+test('search finds matching elements when providing more than two characters', async () => {
   const schema = createDummySchema();
 
   render(<NodeSearch schema={schema} selectedNode={null} setSelectedNode={() => {}} />);
   const searchBar = screen.getByPlaceholderText('Search');
 
-  userEvent.type(searchBar, 'class');
+  await userEvent.type(searchBar, 'class');
   expect(screen.getByText('class1')).toBeInTheDocument();
   expect(screen.getByText('class2')).toBeInTheDocument();
   expect(screen.getByText('class3')).toBeInTheDocument();
@@ -57,7 +57,7 @@ function createDummySchema(): SchemaNode {
 
   // third level
   const p3 = new PropertyNode(6, 'property3', 'number', false, false);
-  const p4 = new PropertyNode(6, 'property4', 'number', false, false);
+  const p4 = new PropertyNode(7, 'property4', 'number', false, false);
   [p3, p4].forEach(p => c3.addChild(p));
 
   return root;

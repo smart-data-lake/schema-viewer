@@ -2,11 +2,13 @@ import React from 'react';
 import { Box, Divider, IconButton, styled, Tooltip, Typography } from '@mui/joy';
 import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from '../utils/SchemaNode';
 import { Share } from '@mui/icons-material';
+import { deprecatedVisitor } from '../utils/D3NodeUtils';
 
 export default function DetailsPanelContent(props: { node: SchemaNode, createNodeUrl: (n: SchemaNode) => string }) {
   const nodeName = props.node.accept(nodeNameVisitor);
-  const nodeType = props.node && props.node.accept(nodeTypeVisitor);
-  const nodeDescription = props.node && props.node.accept(nodeDescriptionVisitor);
+  const nodeType = props.node.accept(nodeTypeVisitor);
+  const nodeDescription = props.node.accept(nodeDescriptionVisitor);
+  const deprecated = props.node.accept(deprecatedVisitor);
 
   return (
     <Box sx={{flex: 1, paddingLeft: 2, paddingRight: 2, overflow: 'auto'}}>
@@ -18,6 +20,7 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
           </IconButton>
         </Tooltip>
       </Box>
+      {deprecated && <Typography sx={{fontStyle: 'italic'}}>deprecated</Typography>}
       <SectionDivider />
       <SectionTitle>Type</SectionTitle>
       <SectionText>{nodeType}</SectionText>

@@ -1,7 +1,7 @@
 import { HierarchyPointNode } from "d3";
-import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from './SchemaNode';
+import { SchemaNode } from './SchemaNode';
 import * as d3 from 'd3';
-import { formatNodeId, getCoordinates, labelVisitor } from './D3NodeUtils';
+import { deprecatedVisitor, formatNodeId, getCoordinates, labelVisitor } from './D3NodeUtils';
 
 export interface SchemaTreeColors {
   expandedCircleColor: string,
@@ -106,10 +106,4 @@ export default class D3NodePainter {
   private removeLeavingNodes(nodes: NodeSelection): void {
     nodes.exit().remove();
   }
-}
-
-const deprecatedVisitor: SchemaVisitor<boolean> = {
-  visitClassNode: (n: ClassNode) => n.deprecated,
-  visitPropertyNode: (n: PropertyNode) => n.deprecated,
-  visitRootNode: () => false
 }

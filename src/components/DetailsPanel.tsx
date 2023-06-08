@@ -16,7 +16,7 @@ export default function DetailsPanel(props: { node: SchemaNode | null, createNod
          }}> {}
       <DetailsPanelBorder setDetailsPanelWidth={setDetailsPanelWidth} />
       {props.node
-        ? <DetailsPanelContent node={props.node} createNodeUrl={props.createNodeUrl}/>
+        ? <DetailsPanelContent node={props.node} createNodeUrl={props.createNodeUrl} />
         : <Typography sx={{margin: 'auto'}}>No node selected.</Typography>
       }
     </Box>

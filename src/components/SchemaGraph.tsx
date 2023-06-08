@@ -64,7 +64,7 @@ function haveSchemaTreeColorsChanged(currentColors: SchemaTreeColors, nextColors
   return JSON.stringify(currentColors) !== JSON.stringify(nextColors);
 }
 
-function getSchemaTreeColorsFromTheme(theme: Theme): SchemaTreeColors  {
+function getSchemaTreeColorsFromTheme(theme: Theme): SchemaTreeColors {
   return {
     deprecatedTextColor: 'orange',
     expandedCircleColor: 'white',

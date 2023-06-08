@@ -12,7 +12,7 @@ const heightPerNode = 35;
 // constants for the spacing between the levels of the tree
 const minLabelSpace = 30;
 const labelSpaceFactor = 8;
-const labelSpaceOffset = 100;
+const labelSpaceOffset = 50;
 
 const selectedClass = 'selected';
 
@@ -233,8 +233,8 @@ function calculateLevelPositions(root: HierarchyPointNode<SchemaNode>): Map<numb
   const maxLevel = Math.max(...root.descendants().map(n => n.depth));
   const levelPositions = new Map<number, number>();
   levelPositions.set(0, 0);
-  for (let i=1; i <= maxLevel; ++i) {
-    const levelPosition = levelPositions.get(i-1)! + distanceToNextLevel.get(i-1)!;
+  for (let i = 1; i <= maxLevel; ++i) {
+    const levelPosition = levelPositions.get(i - 1)! + distanceToNextLevel.get(i - 1)!;
     levelPositions.set(i, levelPosition);
   }
   return levelPositions;

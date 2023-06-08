@@ -14,11 +14,7 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
     <Box sx={{flex: 1, paddingLeft: 2, paddingRight: 2, overflow: 'auto'}}>
       <Box sx={{display: 'flex', justifyContent: 'space-between', marginTop: 3, alignItems: 'center'}}>
         <Typography level="h5" sx={{wordBreak: 'break-word'}}>{nodeName}</Typography>
-        <Tooltip title="Copy link to schema element">
-          <IconButton variant="plain" size="sm" onClick={() => navigator.clipboard.writeText(props.createNodeUrl(props.node))}>
-            <Share />
-          </IconButton>
-        </Tooltip>
+        <ShareButton onClick={() => navigator.clipboard.writeText(props.createNodeUrl(props.node))} />
       </Box>
       {deprecated && <Typography sx={{fontStyle: 'italic'}}>deprecated</Typography>}
       <SectionDivider />
@@ -30,6 +26,17 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
     </Box>
   );
 }
+
+function ShareButton(props: { onClick: () => void }) {
+  return (
+    <Tooltip title="Copy link to schema element">
+      <IconButton onClick={props.onClick} variant="plain" size="sm">
+        <Share />
+      </IconButton>
+    </Tooltip>
+  );
+}
+
 
 const SectionDivider = styled(Divider)({
   marginTop: 24,

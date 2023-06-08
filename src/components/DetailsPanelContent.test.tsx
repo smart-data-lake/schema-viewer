@@ -1,4 +1,4 @@
-import React from  'react';
+import React from 'react';
 import { ClassNode, PropertyNode, SchemaType } from '../utils/SchemaNode';
 import DetailsPanelContent from './DetailsPanelContent';
 import { render, screen } from '@testing-library/react';

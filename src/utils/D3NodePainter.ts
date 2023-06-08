@@ -62,7 +62,7 @@ export default class D3NodePainter {
   private addNodeCircle(nodeElement: NodeSelection): void {
     nodeElement
       .append('circle')
-      .style('stroke',  this.colors.circleBorderColor)
+      .style('stroke', this.colors.circleBorderColor)
       .style('fill', n => this.getCircleFillColor(n))
       .attr('r', 7.5)
       .on('click', (_, n: HierarchyPointNode<SchemaNode>) => this.toggleNode(n));

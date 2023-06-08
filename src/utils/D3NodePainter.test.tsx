@@ -65,8 +65,13 @@ function createNodePainter(svg: SVGSVGElement, colors: SchemaTreeColors): D3Node
 }
 
 function setupSvg(): SVGSVGElement {
-  render(<svg data-testid='test-svg'/>);
+  render(<svg data-testid='test-svg' />);
   return screen.getByTestId('test-svg') as any;
 }
 
-const colors: SchemaTreeColors = { circleBorderColor: '', collapsedCircleColor: '', deprecatedTextColor: 'red', expandedCircleColor: '' }
+const colors: SchemaTreeColors = {
+  circleBorderColor: '',
+  collapsedCircleColor: '',
+  deprecatedTextColor: 'red',
+  expandedCircleColor: ''
+}

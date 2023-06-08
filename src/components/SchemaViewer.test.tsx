@@ -48,7 +48,7 @@ function defineMissingProperties(): void {
   Object.defineProperty(global.SVGElement.prototype, 'viewBox', {
     writable: true,
     value: {
-      animVal:  {
+      animVal: {
         x: 0,
         y: 0,
         left: 0,

@@ -16,9 +16,7 @@ Inside JSX:
 ```jsx
 import { SchemaViewer } from 'sdlb-schema-viewer';
 
-<div style={{height: '...'}}>
-  <SchemaViewer loadSchemaNames={...} loadSchema={...} />
-</div>
+<SchemaViewer loadSchemaNames={...} loadSchema={...} />
 ```
 
 The `SchemaViewer` component has the following properties:
@@ -32,9 +30,7 @@ This example shows how to visualize a simple example schema.
 ```jsx
 import { SchemaViewer } from 'sdlb-schema-viewer';
 
-<div style={{height: '100vh'}}>
-    <SchemaViewer loadSchemaNames={loadSchemaNames} loadSchema={loadSchema}/>
-</div>
+<SchemaViewer loadSchemaNames={loadSchemaNames} loadSchema={loadSchema}/>
 
 const exampleSchema =
     {
@@ -76,11 +72,9 @@ import { CssVarsProvider, extendTheme } from "@mui/joy";
 
 const theme = extendTheme({...});
 
-<div style={{height: '...'}}>
-    <CssVarsProvider theme={theme}>
-        <SchemaViewer loadSchemaNames={...} loadSchema={...}/>
-    </CssVarsProvider>
-</div>
+<CssVarsProvider theme={theme}>
+    <SchemaViewer loadSchemaNames={...} loadSchema={...}/>
+</CssVarsProvider>
 ```
 
 See https://mui.com/joy-ui/customization/theme-colors/ for more information about color

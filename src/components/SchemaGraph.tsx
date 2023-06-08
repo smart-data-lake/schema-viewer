@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './SchemaGraph.css';
 import { SchemaNode } from '../utils/SchemaNode';
-import { Box, useTheme } from '@mui/joy';
+import { Box, Theme, useTheme } from '@mui/joy';
 import D3SchemaTree from '../utils/D3SchemaTree';
 import D3Zoom from '../utils/D3Zoom';
 import GraphControlButtons from './GraphControlButtons';
@@ -18,13 +18,6 @@ export default function SchemaGraph(props: {
   const [showLegend, setShowLegend] = useState(false);
   const theme = useTheme();
 
-  const schemaTreeColors: SchemaTreeColors = {
-    deprecatedTextColor: 'orange',
-    expandedCircleColor: 'white',
-    collapsedCircleColor: theme.palette.primary.plainActiveBg,
-    circleBorderColor: theme.palette.primary.outlinedColor
-  }
-
   useEffect(() => {
     if (schemaTree) {
       // clear the tree to prevent a mix-up between the schemas when the loading takes some time
@@ -33,12 +26,13 @@ export default function SchemaGraph(props: {
     if (props.schema && treeSvg.current) {
       const newZoom = new D3Zoom(treeSvg.current.parentElement as any, treeSvg.current);
       setZoom(newZoom);
-      const newSchemaTree = new D3SchemaTree(props.schema, treeSvg.current, props.setSelectedNode, newZoom, schemaTreeColors);
+      const colors = getSchemaTreeColors(theme);
+      const newSchemaTree = new D3SchemaTree(props.schema, treeSvg.current, props.setSelectedNode, newZoom, colors);
       newSchemaTree.initTree();
       setSchemaTree(newSchemaTree);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.schema]);
+  }, [props.schema, theme]);
 
   useEffect(() => {
     if (props.selectedNode && schemaTree) {
@@ -51,10 +45,19 @@ export default function SchemaGraph(props: {
       {schemaTree && zoom &&
           <GraphControlButtons schemaTree={schemaTree} zoom={zoom} showLegend={showLegend}
                                setShowLegend={setShowLegend} />}
-      {showLegend && <GraphLegend colors={schemaTreeColors} />}
+      {showLegend && <GraphLegend colors={getSchemaTreeColors(theme)} />}
       <StyledSvg width="100%">
         <g ref={(ref: SVGSVGElement) => treeSvg.current = ref} />
       </StyledSvg>
     </Box>
   );
+}
+
+function getSchemaTreeColors(theme: Theme): SchemaTreeColors  {
+  return {
+    deprecatedTextColor: 'orange',
+    expandedCircleColor: 'white',
+    collapsedCircleColor: theme.palette.primary.plainActiveBg,
+    circleBorderColor: theme.palette.primary.outlinedColor
+  }
 }

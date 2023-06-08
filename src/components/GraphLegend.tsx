@@ -52,7 +52,7 @@ export default function GraphLegend(props: { colors: SchemaTreeColors }) {
       <StyledSvg width="200px">
         <>
           {legendItems.map((l, i) =>
-            (<g transform={`translate(10, ${(i + 1) * 20})`}>
+            (<g key={i} transform={`translate(10, ${(i + 1) * 20})`}>
               <circle r="7.5" fill={l.circleColor} stroke={props.colors.circleBorderColor}></circle>
               <text x="12" dy=".35em" fill={l.textColor}>{l.text}</text>
             </g>)

@@ -16,6 +16,10 @@ test('example schema is loaded and rendered without errors', async () => {
   );
 
   expect(await screen.findByText('schema{ }')).toBeInTheDocument();
+  expect(screen.getByText('global{ }')).toBeInTheDocument();
+  expect(screen.getByText('connections[mapOf]')).toBeInTheDocument();
+  expect(screen.getByText('dataObjects[mapOf]*')).toBeInTheDocument();
+  expect(screen.getByText('actions[mapOf]*')).toBeInTheDocument();
 });
 
 /**

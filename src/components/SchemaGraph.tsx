@@ -17,6 +17,14 @@ export default function SchemaGraph(props: {
   const [zoom, setZoom] = useState<D3Zoom>();
   const [showLegend, setShowLegend] = useState(false);
   const theme = useTheme();
+  const [schemaTreeColors, setSchemaTreeColors] = useState(getSchemaTreeColorsFromTheme(theme));
+
+  // we only update the schemaTreeColors if the values have changed,
+  // because changing the colors triggers a redrawing of the tree
+  const schemaTreeColorsFromTheme = getSchemaTreeColorsFromTheme(theme);
+  if (haveSchemaTreeColorsChanged(schemaTreeColors, schemaTreeColorsFromTheme)) {
+    setSchemaTreeColors(schemaTreeColorsFromTheme);
+  }
 
   useEffect(() => {
     if (schemaTree) {
@@ -26,13 +34,12 @@ export default function SchemaGraph(props: {
     if (props.schema && treeSvg.current) {
       const newZoom = new D3Zoom(treeSvg.current.parentElement as any, treeSvg.current);
       setZoom(newZoom);
-      const colors = getSchemaTreeColors(theme);
-      const newSchemaTree = new D3SchemaTree(props.schema, treeSvg.current, props.setSelectedNode, newZoom, colors);
+      const newSchemaTree = new D3SchemaTree(props.schema, treeSvg.current, props.setSelectedNode, newZoom, schemaTreeColors);
       newSchemaTree.initTree();
       setSchemaTree(newSchemaTree);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.schema, theme]);
+  }, [props.schema, schemaTreeColors]);
 
   useEffect(() => {
     if (props.selectedNode && schemaTree) {
@@ -45,7 +52,7 @@ export default function SchemaGraph(props: {
       {schemaTree && zoom &&
           <GraphControlButtons schemaTree={schemaTree} zoom={zoom} showLegend={showLegend}
                                setShowLegend={setShowLegend} />}
-      {showLegend && <GraphLegend colors={getSchemaTreeColors(theme)} />}
+      {showLegend && <GraphLegend colors={schemaTreeColors} />}
       <StyledSvg width="100%">
         <g ref={(ref: SVGSVGElement) => treeSvg.current = ref} />
       </StyledSvg>
@@ -53,7 +60,11 @@ export default function SchemaGraph(props: {
   );
 }
 
-function getSchemaTreeColors(theme: Theme): SchemaTreeColors  {
+function haveSchemaTreeColorsChanged(currentColors: SchemaTreeColors, nextColors: SchemaTreeColors) {
+  return JSON.stringify(currentColors) !== JSON.stringify(nextColors);
+}
+
+function getSchemaTreeColorsFromTheme(theme: Theme): SchemaTreeColors  {
   return {
     deprecatedTextColor: 'orange',
     expandedCircleColor: 'white',

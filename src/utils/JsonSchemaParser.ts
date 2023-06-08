@@ -6,7 +6,7 @@ export type JSONSchema = JSONSchema7;
 /**
  * For constructing a {@link SchemaNode} tree from a JSON schema.
  */
-export default class SchemaParser {
+export default class JsonSchemaParser {
   private readonly fullSchema: JSONSchema
   private readonly idGenerator: NodeIdGenerator;
 

@@ -3,7 +3,7 @@ import DetailsPanel from './DetailsPanel';
 import SchemaViewerHeader from './SchemaViewerHeader';
 import SchemaGraph from './SchemaGraph';
 import { Box, CssVarsProvider } from '@mui/joy';
-import SchemaParser, { JSONSchema } from '../utils/SchemaParser';
+import JsonSchemaParser, { JSONSchema } from '../utils/JsonSchemaParser';
 import { SchemaNode } from '../utils/SchemaNode';
 import { defaultTheme } from '../utils/DefaultTheme';
 import SchemaSelector from './SchemaSelector';
@@ -50,7 +50,7 @@ export default function SchemaViewer(props: SchemaViewerProps) {
     setSchemaBlob(null);
     const loadedSchema = props.loadSchema(schemaName);
     loadedSchema
-      .then(schemaJson => new SchemaParser(schemaJson as JSONSchema).parseSchema())
+      .then(schemaJson => new JsonSchemaParser(schemaJson as JSONSchema).parseSchema())
       .then(setSchema);
     loadedSchema
       .then(formatJson)

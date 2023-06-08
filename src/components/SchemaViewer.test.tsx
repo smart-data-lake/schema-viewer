@@ -6,13 +6,14 @@ import exampleSchema from '../example-schema.json';
 test('example schema is loaded and rendered without errors', async () => {
   defineMissingProperties();
 
-  render(<SchemaViewer
-    loadSchemaNames={() => Promise.resolve(['schema1.json', 'schema2.json'])}
-    loadSchema={schemaName => {
-      expect(schemaName).toBe('schema2.json');
-      return Promise.resolve(exampleSchema)
-    }}
-  />);
+  render(
+    <SchemaViewer
+      loadSchemaNames={() => Promise.resolve(['schema1.json', 'schema2.json'])}
+      loadSchema={schemaName => {
+        expect(schemaName).toBe('schema2.json');
+        return Promise.resolve(exampleSchema);
+      }} />
+  );
 
   expect(await screen.findByText('schema{ }')).toBeInTheDocument();
 });

@@ -3,6 +3,9 @@ import { JSONSchema7 } from 'json-schema';
 
 export type JSONSchema = JSONSchema7;
 
+// types which are used when a class can be chosen from a list of classes
+const classSelectionTypes: SchemaType[] = ['anyOf', 'allOf', 'oneOf', 'mapOf'];
+
 /**
  * For constructing a {@link SchemaNode} tree from a JSON schema.
  */
@@ -40,8 +43,9 @@ export default class JsonSchemaParser {
     let {type, typeDetails} = this.parseType(resolvedPropertySchema);
     const deprecated = this.isDeprecated(propertySchema);
     const childNodes = this.parseChildren(type, resolvedPropertySchema);
-    if (!typeDetails && this.hasClassNodeChildren(type, propertySchema)) {
-      typeDetails = this.inferTypeDetailsFromChildClasses(childNodes as ClassNode[]);
+    if (this.hasClassNodeChildren(type, propertySchema)) {
+      const typeDetailsAboutChildren = this.inferTypeDetailsFromChildClasses(childNodes as ClassNode[]);
+      typeDetails = typeDetails ? `${typeDetails} ${typeDetailsAboutChildren}` : typeDetailsAboutChildren;
     }
     const propertyNode = new PropertyNode(this.idGenerator.generateId(), name, type, required, deprecated, typeDetails,
       resolvedPropertySchema.description);
@@ -113,15 +117,15 @@ export default class JsonSchemaParser {
   }
 
   private hasClassNodeChildren(type: SchemaType, propertySchema: JSONSchema): boolean {
-    return ['anyOf', 'allOf', 'oneOf', 'mapOf'].includes(type)
-      || (type === 'array' && this.getArrayItemType(propertySchema) === 'object');
+    return classSelectionTypes.includes(type)
+      || (type === 'array' && [...classSelectionTypes, 'object'].includes(this.getArrayItemType(propertySchema)));
   }
 
   private getArrayItemType(array: JSONSchema): SchemaType {
-    // we only have single object items in our schema
+    // we only have single object items in our schema, so it is not an array
     const items = array.items as JSONSchema;
     const resolvedItems = items.$ref ? this.getSchemaFromRef(items.$ref) : items;
-    return resolvedItems.type as SchemaType;
+    return this.parseType(resolvedItems).type;
   }
 
   private getClassElements(type: SchemaType, schemaElement: JSONSchema): JSONSchema[] {
@@ -137,11 +141,20 @@ export default class JsonSchemaParser {
       case 'mapOf':
         return (schemaElement.additionalProperties as JSONSchema).oneOf as JSONSchema[];
       case 'array':
-        // we only have single items in our schema
-        return schemaElement.items ? [schemaElement.items as JSONSchema] : [];
+        return this.getClassElementsForArray(schemaElement);
       default:
         throw new Error(`Type ${type} does not have class node children.`)
     }
+  }
+
+  private getClassElementsForArray(arrayElement: JSONSchema): JSONSchema[] {
+    if (!arrayElement.items) {
+      return [];
+    }
+    // we only have single object items in our schema, so it is not an array
+    const items = arrayElement.items as JSONSchema;
+    const itemsType = this.getArrayItemType(arrayElement);
+    return classSelectionTypes.includes(itemsType) ? this.getClassElements(itemsType, items) : [items];
   }
 
   private parseClass(classSchema: JSONSchema): ClassNode {

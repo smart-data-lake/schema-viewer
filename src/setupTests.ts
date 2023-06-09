@@ -6,10 +6,9 @@ import '@testing-library/jest-dom';
 
 // Jest uses jsdom to simulate the DOM. Some properties are missing in jsdom and need to be mocked accordingly.
 
-// see https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: (query: any) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -18,7 +17,7 @@ Object.defineProperty(window, 'matchMedia', {
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
-  })),
+  }),
 });
 
 Object.defineProperty(global.SVGElement.prototype, 'getBBox', {

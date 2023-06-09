@@ -34,7 +34,7 @@ test('focusOnNode expands tree so that node is visible', async () => {
   expect(screen.getByText('property2(string)')).toBeInTheDocument();
 });
 
-test('node is expanded when clicking on circle', async () => {
+test('collapsed node is expanded when clicking on circle', async () => {
   const schema = createDummySchema();
   const zoom = createMockZoom();
   const svg = setupSvg();
@@ -48,6 +48,22 @@ test('node is expanded when clicking on circle', async () => {
   expect(screen.getByText('schema{ }')).toBeInTheDocument();
   expect(screen.getByText('property1(string)')).toBeInTheDocument();
   expect(screen.getByText('property2(string)')).toBeInTheDocument();
+});
+
+test('expanded node is collapsed when clicking on circle', async () => {
+  const schema = createDummySchema();
+  const zoom = createMockZoom();
+  const svg = setupSvg();
+  const schemaTree = new D3SchemaTree(schema, svg, () => {}, zoom, dummyColors);
+  schemaTree.initTree();
+
+  // eslint-disable-next-line testing-library/no-node-access
+  const circle = screen.getByText('schema{ }').parentElement!.querySelector('circle')!;
+  await userEvent.click(circle);
+
+  expect(screen.getByText('schema{ }')).toBeInTheDocument();
+  expect(screen.queryByText('property1(string)')).not.toBeInTheDocument();
+  expect(screen.queryByText('property2(string)')).not.toBeInTheDocument();
 });
 
 test('selects node when text is clicked', async () => {

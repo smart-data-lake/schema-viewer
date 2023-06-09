@@ -60,7 +60,7 @@ export default function SchemaGraph(props: {
   );
 }
 
-function haveSchemaTreeColorsChanged(currentColors: SchemaTreeColors, nextColors: SchemaTreeColors) {
+function haveSchemaTreeColorsChanged(currentColors: SchemaTreeColors, nextColors: SchemaTreeColors): boolean {
   return JSON.stringify(currentColors) !== JSON.stringify(nextColors);
 }
 

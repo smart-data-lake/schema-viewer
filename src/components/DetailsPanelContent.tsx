@@ -14,7 +14,7 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
     <Box sx={{flex: 1, paddingLeft: 2, paddingRight: 2, overflow: 'auto'}}>
       <Box sx={{display: 'flex', justifyContent: 'space-between', marginTop: 3, alignItems: 'center'}}>
         <Typography level="h5" sx={{wordBreak: 'break-word'}}>{nodeName}</Typography>
-        <ShareButton onClick={() => navigator.clipboard.writeText(props.createNodeUrl(props.node))} />
+        <ShareButton getNodeUrl={() => props.createNodeUrl(props.node)} />
       </Box>
       {deprecated && <Typography sx={{fontStyle: 'italic'}}>deprecated</Typography>}
       <SectionDivider />
@@ -26,17 +26,6 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
     </Box>
   );
 }
-
-function ShareButton(props: { onClick: () => void }) {
-  return (
-    <Tooltip title="Copy link to schema element">
-      <IconButton onClick={props.onClick} variant="plain" size="sm">
-        <Share />
-      </IconButton>
-    </Tooltip>
-  );
-}
-
 
 const SectionDivider = styled(Divider)({
   marginTop: 24,
@@ -50,6 +39,24 @@ const SectionTitle = (props: { children: string }) => {
 const SectionText = (props: { children?: string }) => {
   return (
     <Typography level="body2" sx={{wordBreak: 'break-word', whiteSpace: 'pre-wrap'}}>{props.children}</Typography>);
+}
+
+function ShareButton(props: { getNodeUrl: () => string }) {
+  return (
+    <Tooltip title="Copy link to schema element">
+      <IconButton onClick={() => writeToClipboard(props.getNodeUrl())} variant="plain" size="sm">
+        <Share />
+      </IconButton>
+    </Tooltip>
+  );
+}
+
+function writeToClipboard(text: string): void {
+  if (!navigator.clipboard) {
+    alert('Cannot copy to clipboard. Make sure you use a secure connection.');
+    return;
+  }
+  navigator.clipboard.writeText(text);
 }
 
 const nodeNameVisitor: SchemaVisitor<string> = {

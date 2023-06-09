@@ -259,7 +259,7 @@ describe('schema references are resolved in', () => {
     expect(classNode2!.baseClass).toBe('BaseClass');
   });
 
-  test('array', () => {
+  test('array with single ref', () => {
     let jsonSchema = {
       "type": "object",
       "properties": {
@@ -287,6 +287,98 @@ describe('schema references are resolved in', () => {
     expect(propertyNode.typeDetails).toBe('ClassName');
     expect(classNode.className).toBe('ClassName');
     expect(classNode.baseClass).toBe('BaseClass');
+  });
+
+  test.each([['oneOf'], ['allOf'], ['anyOf']])('array containing %s', (type: string) => {
+    let jsonSchema = {
+      "type": "object",
+      "properties": {
+        "property": {
+          "type": "array",
+          "items": {
+            [type]: [{
+              "$ref": "#/definitions/BaseClass/ConcreteClass1"
+            }, {
+              "$ref": "#/definitions/BaseClass/ConcreteClass2"
+            }]
+          }
+        }
+      },
+      "definitions": {
+        "BaseClass": {
+          "ConcreteClass1": {
+            "type": "object",
+            "title": "ClassName1",
+            "description": "some description"
+          },
+          "ConcreteClass2": {
+            "type": "object",
+            "title": "ClassName2",
+            "deprecated": true,
+          }
+        }
+      }
+    }
+    const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
+
+    const propertyNode = root.children[0] as PropertyNode;
+    const classNode1 = propertyNode.children.map(c => c as ClassNode).find(c => c.className === 'ClassName1')
+    const classNode2 = propertyNode.children.map(c => c as ClassNode).find(c => c.className === 'ClassName2')
+    expect(propertyNode.type).toBe("array");
+    expect(propertyNode.typeDetails).toBe(`${type} BaseClass`);
+    expect(classNode1!.baseClass).toBe('BaseClass');
+    expect(classNode1!.description).toBe('some description');
+    expect(classNode1!.deprecated).toBe(false);
+    expect(classNode2!.baseClass).toBe('BaseClass');
+    expect(classNode2!.description).toBeUndefined();
+    expect(classNode2!.deprecated).toBe(true);
+  });
+
+  test('array containing mapOf', () => {
+    let jsonSchema = {
+      "type": "object",
+      "properties": {
+        "property": {
+          "type": "array",
+          "items": {
+            "additionalProperties": {
+              "oneOf": [{
+                "$ref": "#/definitions/BaseClass/ConcreteClass1"
+              }, {
+                "$ref": "#/definitions/BaseClass/ConcreteClass2"
+              }]
+            }
+          }
+        }
+      },
+      "definitions": {
+        "BaseClass": {
+          "ConcreteClass1": {
+            "type": "object",
+            "title": "ClassName1",
+            "description": "some description"
+          },
+          "ConcreteClass2": {
+            "type": "object",
+            "title": "ClassName2",
+            "deprecated": true,
+          }
+        }
+      }
+    }
+    const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
+
+    const propertyNode = root.children[0] as PropertyNode;
+    const classNode1 = propertyNode.children.map(c => c as ClassNode).find(c => c.className === 'ClassName1')
+    const classNode2 = propertyNode.children.map(c => c as ClassNode).find(c => c.className === 'ClassName2')
+    expect(propertyNode.type).toBe("array");
+    expect(propertyNode.typeDetails).toBe(`mapOf BaseClass`);
+    expect(classNode1!.baseClass).toBe('BaseClass');
+    expect(classNode1!.description).toBe('some description');
+    expect(classNode1!.deprecated).toBe(false);
+    expect(classNode2!.baseClass).toBe('BaseClass');
+    expect(classNode2!.description).toBeUndefined();
+    expect(classNode2!.deprecated).toBe(true);
   });
 });
 

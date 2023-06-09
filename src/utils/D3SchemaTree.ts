@@ -12,7 +12,7 @@ const heightPerNode = 35;
 // constants for the spacing between the levels of the tree
 const minLabelSpace = 30;
 const labelSpaceFactor = 8;
-const labelSpaceOffset = 50;
+const labelSpaceOffset = 80;
 
 const selectedClass = 'selected';
 

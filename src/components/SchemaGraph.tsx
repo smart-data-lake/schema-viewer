@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './SchemaGraph.css';
 import { SchemaNode } from '../utils/SchemaNode';
-import { Box, useTheme } from '@mui/joy';
+import { Box, Theme, useTheme } from '@mui/joy';
 import D3SchemaTree from '../utils/D3SchemaTree';
 import D3Zoom from '../utils/D3Zoom';
 import GraphControlButtons from './GraphControlButtons';
@@ -9,18 +9,21 @@ import StyledSvg from './StyledSvg';
 import GraphLegend from './GraphLegend';
 import { SchemaTreeColors } from '../utils/D3NodePainter';
 
-export default function SchemaGraph(props: { schema: SchemaNode | null, setSelectedNode: (n: SchemaNode | null) => void, selectedNode: SchemaNode | null }) {
+export default function SchemaGraph(props: {
+  schema: SchemaNode | null, setSelectedNode: (n: SchemaNode | null) => void, selectedNode: SchemaNode | null
+}) {
   const treeSvg = useRef<SVGSVGElement>();
   const [schemaTree, setSchemaTree] = useState<D3SchemaTree>();
   const [zoom, setZoom] = useState<D3Zoom>();
   const [showLegend, setShowLegend] = useState(false);
   const theme = useTheme();
+  const [schemaTreeColors, setSchemaTreeColors] = useState(getSchemaTreeColorsFromTheme(theme));
 
-  const schemaTreeColors: SchemaTreeColors = {
-    deprecatedTextColor: 'orange',
-    expandedCircleColor: 'white',
-    collapsedCircleColor: theme.palette.primary.plainActiveBg,
-    circleBorderColor: theme.palette.primary.outlinedColor
+  // we only update the schemaTreeColors if the values have changed,
+  // because changing the colors triggers a redrawing of the tree
+  const schemaTreeColorsFromTheme = getSchemaTreeColorsFromTheme(theme);
+  if (haveSchemaTreeColorsChanged(schemaTreeColors, schemaTreeColorsFromTheme)) {
+    setSchemaTreeColors(schemaTreeColorsFromTheme);
   }
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export default function SchemaGraph(props: { schema: SchemaNode | null, setSelec
       setSchemaTree(newSchemaTree);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.schema]);
+  }, [props.schema, schemaTreeColors]);
 
   useEffect(() => {
     if (props.selectedNode && schemaTree) {
@@ -55,4 +58,17 @@ export default function SchemaGraph(props: { schema: SchemaNode | null, setSelec
       </StyledSvg>
     </Box>
   );
+}
+
+function haveSchemaTreeColorsChanged(currentColors: SchemaTreeColors, nextColors: SchemaTreeColors) {
+  return JSON.stringify(currentColors) !== JSON.stringify(nextColors);
+}
+
+function getSchemaTreeColorsFromTheme(theme: Theme): SchemaTreeColors {
+  return {
+    deprecatedTextColor: 'orange',
+    expandedCircleColor: 'white',
+    collapsedCircleColor: theme.palette.primary.plainActiveBg,
+    circleBorderColor: theme.palette.primary.outlinedColor
+  }
 }

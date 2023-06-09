@@ -44,7 +44,7 @@ export default class D3Zoom {
   private transform(x: number, y: number, scale: number, duration: number): void {
     d3.select(this.zoomPane)
       .transition().duration(duration)
-      .call(this.zoomBehaviour.transform, d3.zoomIdentity.translate(x,y).scale(scale));
+      .call(this.zoomBehaviour.transform, d3.zoomIdentity.translate(x, y).scale(scale));
   }
 
   center(x: number, y: number, duration: number): void {
@@ -58,7 +58,7 @@ export default class D3Zoom {
     return d3.zoomTransform(this.zoomPane).k
   }
 
-  private getPosition(): {x: number, y: number} {
+  private getPosition(): { x: number, y: number } {
     const transform = d3.zoomTransform(this.zoomPane);
     return {x: transform.x, y: transform.y};
   }

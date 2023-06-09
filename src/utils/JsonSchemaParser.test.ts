@@ -1,4 +1,4 @@
-import SchemaParser, { JSONSchema } from './SchemaParser';
+import JsonSchemaParser, { JSONSchema } from './JsonSchemaParser';
 import { ClassNode, PropertyNode } from './SchemaNode';
 
 test('fields of properties are parsed', () => {
@@ -12,7 +12,7 @@ test('fields of properties are parsed', () => {
       },
     }
   }
-  const root = new SchemaParser(jsonSchema as JSONSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
 
   const propertyNode = root.children[0] as PropertyNode;
   expect(propertyNode.propertyName).toBe('someName');
@@ -37,7 +37,7 @@ test('multiple properties are parsed', () => {
       }
     }
   }
-  const root = new SchemaParser(jsonSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
 
   expect(root.children).toHaveLength(3);
 });
@@ -62,7 +62,7 @@ test('nested properties are parsed', () => {
       },
     }
   }
-  const root = new SchemaParser(jsonSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
 
   const property1 = root.children[0] as PropertyNode;
   const property2 = property1.children[0] as PropertyNode;
@@ -91,7 +91,7 @@ test('required properties are parsed to required property nodes', () => {
       }
     }
   }
-  const root = new SchemaParser(jsonSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
 
   const requiredPropertyNode = root.children.map(p => p as PropertyNode).find(p => p.propertyName === 'requiredProperty');
   const optionalPropertyNode = root.children.map(p => p as PropertyNode).find(p => p.propertyName === 'optionalProperty');
@@ -111,7 +111,7 @@ test('arrays with simple items do not have children', () => {
       },
     }
   }
-  const root = new SchemaParser(jsonSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
 
   const arrayNode = root.children[0] as PropertyNode;
   expect(arrayNode.type).toBe('array');
@@ -129,7 +129,7 @@ test('enum is parsed with possible values', () => {
       }
     }
   }
-  const root = new SchemaParser(jsonSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
 
   const enumNode = root.children[0] as PropertyNode;
   expect(enumNode.type).toBe('enum');
@@ -145,7 +145,7 @@ test('const is parsed with possible value', () => {
       }
     }
   }
-  const root = new SchemaParser(jsonSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
 
   const enumNode = root.children[0] as PropertyNode;
   expect(enumNode.type).toBe('const');
@@ -171,7 +171,7 @@ describe('schema references are resolved in', () => {
         }
       }
     }
-    const root = new SchemaParser(jsonSchema as JSONSchema).parseSchema();
+    const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
 
     const propertyNode = root.children[0] as PropertyNode;
     expect(propertyNode.type).toBe('object');
@@ -206,7 +206,7 @@ describe('schema references are resolved in', () => {
         }
       }
     }
-    const root = new SchemaParser(jsonSchema as JSONSchema).parseSchema();
+    const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
 
     const propertyNode = root.children[0] as PropertyNode;
     const classNode1 = propertyNode.children.map(c => c as ClassNode).find(c => c.className === 'ClassName1')
@@ -248,7 +248,7 @@ describe('schema references are resolved in', () => {
         }
       }
     }
-    const root = new SchemaParser(jsonSchema as JSONSchema).parseSchema();
+    const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
 
     const propertyNode = root.children[0] as PropertyNode;
     const classNode1 = propertyNode.children.map(c => c as ClassNode).find(c => c.className === 'ClassName1')
@@ -279,7 +279,7 @@ describe('schema references are resolved in', () => {
         }
       }
     }
-    const root = new SchemaParser(jsonSchema as JSONSchema).parseSchema();
+    const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
 
     const propertyNode = root.children[0] as PropertyNode;
     const classNode = propertyNode.children[0] as ClassNode;
@@ -315,7 +315,7 @@ test('base class is undefined if schema is defined in "Others" section', () => {
       }
     }
   }
-  const root = new SchemaParser(jsonSchema as JSONSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
 
   const propertyNode = root.children[0] as PropertyNode;
   const classNode1 = propertyNode.children.map(c => c as ClassNode).find(c => c.className === 'ClassName1')
@@ -343,7 +343,7 @@ test('properties inside class node are parsed', () => {
       }
     },
   }
-  const root = new SchemaParser(jsonSchema as JSONSchema).parseSchema();
+  const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
 
   const propertyNode = root.children[0] as PropertyNode;
   const classNode = propertyNode.children[0] as ClassNode;

@@ -1,7 +1,7 @@
 {
   "name": "sdlb-schema-viewer",
   "description": "React component for visualizing the Smart Data Lake Builder config schema.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "./dist/main.js",
   "peerDependencies": {
     "@emotion/react": "11.x",
@@ -12,8 +12,8 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.4.3",
     "@types/d3": "^7.4.0",
     "@types/jest": "^27.5.2",
     "@types/json-schema": "^7.0.11",
@@ -59,5 +59,10 @@
     "transformIgnorePatterns": [
       "node_modules/@types/d3"
     ]
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smart-data-lake/schema-viewer"
+  },
+  "license": "GPL-3.0"
 }

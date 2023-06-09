@@ -1,7 +1,7 @@
 import { HierarchyPointNode } from "d3";
-import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from './SchemaNode';
+import { SchemaNode } from './SchemaNode';
 import * as d3 from 'd3';
-import { formatNodeId, getCoordinates } from './D3NodeUtils';
+import { deprecatedVisitor, formatNodeId, getCoordinates, labelVisitor } from './D3NodeUtils';
 
 export interface SchemaTreeColors {
   expandedCircleColor: string,
@@ -62,7 +62,7 @@ export default class D3NodePainter {
   private addNodeCircle(nodeElement: NodeSelection): void {
     nodeElement
       .append('circle')
-      .style('stroke',  this.colors.circleBorderColor)
+      .style('stroke', this.colors.circleBorderColor)
       .style('fill', n => this.getCircleFillColor(n))
       .attr('r', 7.5)
       .on('click', (_, n: HierarchyPointNode<SchemaNode>) => this.toggleNode(n));
@@ -106,34 +106,4 @@ export default class D3NodePainter {
   private removeLeavingNodes(nodes: NodeSelection): void {
     nodes.exit().remove();
   }
-}
-
-const deprecatedVisitor: SchemaVisitor<boolean> = {
-  visitClassNode: (n: ClassNode) => n.deprecated,
-  visitPropertyNode: (n: PropertyNode) => n.deprecated,
-  visitRootNode: () => false
-}
-
-const labelVisitor: SchemaVisitor<string> = {
-  visitClassNode: (n: ClassNode) => n.className + objectLabelSuffix,
-  visitPropertyNode: (n: PropertyNode) => n.propertyName + getTypeSuffixForProperty(n) + getRequiredSuffix(n),
-  visitRootNode: () => 'schema' + objectLabelSuffix
-}
-
-const objectLabelSuffix = '{ }';
-
-function getTypeSuffixForProperty(propertyNode: PropertyNode): string {
-  if (propertyNode.type === 'object') {
-    return objectLabelSuffix;
-  } else if (['mapOf', 'anyOf', 'oneOf', 'allOf'].includes(propertyNode.type)) {
-    return '[' + propertyNode.type + ']';
-  } else if (propertyNode.type === 'array') {
-    return propertyNode.children.length > 0 || !propertyNode.typeDetails ? '[ ]' : '[' + propertyNode.typeDetails + ']';
-  } else {
-    return '(' + propertyNode.type + ')';
-  }
-}
-
-function getRequiredSuffix(propertyNode: PropertyNode): string {
-  return propertyNode.required ? '*' : '';
 }

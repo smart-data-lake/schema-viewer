@@ -2,22 +2,21 @@ import React from 'react';
 import { Box, Divider, IconButton, styled, Tooltip, Typography } from '@mui/joy';
 import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from '../utils/SchemaNode';
 import { Share } from '@mui/icons-material';
+import { deprecatedVisitor } from '../utils/D3NodeUtils';
 
 export default function DetailsPanelContent(props: { node: SchemaNode, createNodeUrl: (n: SchemaNode) => string }) {
   const nodeName = props.node.accept(nodeNameVisitor);
-  const nodeType = props.node && props.node.accept(nodeTypeVisitor);
-  const nodeDescription = props.node && props.node.accept(nodeDescriptionVisitor);
+  const nodeType = props.node.accept(nodeTypeVisitor);
+  const nodeDescription = props.node.accept(nodeDescriptionVisitor);
+  const deprecated = props.node.accept(deprecatedVisitor);
 
   return (
     <Box sx={{flex: 1, paddingLeft: 2, paddingRight: 2, overflow: 'auto'}}>
       <Box sx={{display: 'flex', justifyContent: 'space-between', marginTop: 3, alignItems: 'center'}}>
         <Typography level="h5" sx={{wordBreak: 'break-word'}}>{nodeName}</Typography>
-        <Tooltip title="Copy link to schema element">
-          <IconButton variant="plain" size="sm" onClick={() => navigator.clipboard.writeText(props.createNodeUrl(props.node))}>
-            <Share />
-          </IconButton>
-        </Tooltip>
+        <ShareButton onClick={() => navigator.clipboard.writeText(props.createNodeUrl(props.node))} />
       </Box>
+      {deprecated && <Typography sx={{fontStyle: 'italic'}}>deprecated</Typography>}
       <SectionDivider />
       <SectionTitle>Type</SectionTitle>
       <SectionText>{nodeType}</SectionText>
@@ -27,6 +26,17 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
     </Box>
   );
 }
+
+function ShareButton(props: { onClick: () => void }) {
+  return (
+    <Tooltip title="Copy link to schema element">
+      <IconButton onClick={props.onClick} variant="plain" size="sm">
+        <Share />
+      </IconButton>
+    </Tooltip>
+  );
+}
+
 
 const SectionDivider = styled(Divider)({
   marginTop: 24,

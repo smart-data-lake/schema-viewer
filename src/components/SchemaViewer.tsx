@@ -3,7 +3,7 @@ import DetailsPanel from './DetailsPanel';
 import SchemaViewerHeader from './SchemaViewerHeader';
 import SchemaGraph from './SchemaGraph';
 import { Box, CssVarsProvider } from '@mui/joy';
-import SchemaParser, { JSONSchema } from '../utils/SchemaParser';
+import JsonSchemaParser, { JSONSchema } from '../utils/JsonSchemaParser';
 import { SchemaNode } from '../utils/SchemaNode';
 import { defaultTheme } from '../utils/DefaultTheme';
 import SchemaSelector from './SchemaSelector';
@@ -18,29 +18,48 @@ import {
   updatePathInUrlParams,
   updateSchemaInUrlParams
 } from '../utils/SchemaSerialization';
+import DownloadButton from './DownloadButton';
+
+interface SchemaViewerProps {
+  /**
+   * Function for loading a list of schema names. These are the schemas that a user can select.
+   */
+  loadSchemaNames: () => Promise<string[]>,
+
+  /**
+   * Function for loading a JSON schema corresponding to the schema name.
+   * The schema must be provided as a JSON object and not as a string.
+   */
+  loadSchema: (schemaName: string) => Promise<any>
+}
 
 /**
  * Base component for the schema viewer.
  */
-export default function SchemaViewer(props: { schemasUrl: string }) {
+export default function SchemaViewer(props: SchemaViewerProps) {
   const [selectedSchemaName, setSelectedSchemaName] = useState<string>();
   const [schema, setSchema] = useState<SchemaNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<SchemaNode | null>(null);
   const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
+  const [schemaBlob, setSchemaBlob] = useState<Blob | null>(null); // for download
 
-  function loadSchema(schemaName: string): void {
+  function initSchema(schemaName: string): void {
     // between loading schemas we set the old schema to null to prevent any confusion between the schemas
     setSelectedNode(null);
     setSchema(null);
-    fetch(props.schemasUrl + schemaName)
-      .then(res => res.json() as JSONSchema)
-      .then(schemaJson => new SchemaParser(schemaJson).parseSchema())
-      .then(setSchema)
+    setSchemaBlob(null);
+    const loadedSchema = props.loadSchema(schemaName);
+    loadedSchema
+      .then(schemaJson => new JsonSchemaParser(schemaJson as JSONSchema).parseSchema())
+      .then(setSchema);
+    loadedSchema
+      .then(formatJson)
+      .then(formattedSchema => setSchemaBlob(new Blob([formattedSchema])));
   }
 
   useEffect(() => {
     if (selectedSchemaName) {
-      loadSchema(selectedSchemaName);
+      initSchema(selectedSchemaName);
       if (hasSchemaInUrlParams()) {
         updateSchemaInUrlParams(selectedSchemaName);
       } else if (hasPathUrlParam()) {
@@ -69,10 +88,13 @@ export default function SchemaViewer(props: { schemasUrl: string }) {
       <Box sx={{display: 'flex', height: '100%'}}>
         <Box sx={{flex: 1, display: 'flex', flexDirection: 'column'}}>
           <SchemaViewerHeader>
-            <SchemaSelector schemasUrl={props.schemasUrl} selectedSchemaName={selectedSchemaName}
+            <SchemaSelector loadSchemaNames={props.loadSchemaNames} selectedSchemaName={selectedSchemaName}
                             setSelectedSchemaName={setSelectedSchemaName} />
             <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
-            <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />
+            <Box sx={{marginLeft: 'auto', display: 'flex'}}>
+              <DownloadButton toDownload={schemaBlob} fileName={selectedSchemaName} />
+              <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />
+            </Box>
           </SchemaViewerHeader>
           <Box sx={{flex: 1}}>
             <SchemaGraph schema={schema} setSelectedNode={setSelectedNode} selectedNode={selectedNode} />
@@ -87,4 +109,8 @@ export default function SchemaViewer(props: { schemasUrl: string }) {
       </Box>
     </CssVarsProvider>
   );
+}
+
+function formatJson(json: any): string {
+  return JSON.stringify(json, null, 2);
 }

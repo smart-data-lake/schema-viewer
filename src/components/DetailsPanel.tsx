@@ -11,12 +11,12 @@ export default function DetailsPanel(props: { node: SchemaNode | null, createNod
     <Box sx={{display: 'flex', height: '100%', background: theme => theme.palette.background.body}}
          style={{
            width: detailsPanelWidth, /* dynamic styles should be defined in style and not sx */
-           maxWidth: document.body.clientWidth - 950, /* maxWidth is chosen so that no horizontal scroll bar appears on maxWidth */
+           maxWidth: document.body.clientWidth - 960, /* maxWidth is chosen so that no horizontal scroll bar appears on maxWidth */
            minWidth: 200
          }}> {}
       <DetailsPanelBorder setDetailsPanelWidth={setDetailsPanelWidth} />
       {props.node
-        ? <DetailsPanelContent node={props.node} createNodeUrl={props.createNodeUrl}/>
+        ? <DetailsPanelContent node={props.node} createNodeUrl={props.createNodeUrl} />
         : <Typography sx={{margin: 'auto'}}>No node selected.</Typography>
       }
     </Box>

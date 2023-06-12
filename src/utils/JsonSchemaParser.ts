@@ -1,7 +1,11 @@
 import { RootNode, ClassNode, PropertyNode, SchemaType, SchemaNode } from './SchemaNode';
 import { JSONSchema7 } from 'json-schema';
 
-export type JSONSchema = JSONSchema7;
+export type JSONSchema = JSONSchema7 & CanBeDeprecated;
+// deprecated is not yet available in JSON schema draft07
+type CanBeDeprecated = {
+  deprecated?: boolean
+}
 
 // types which are used when a class can be chosen from a list of classes
 const classSelectionTypes: SchemaType[] = ['anyOf', 'allOf', 'oneOf', 'mapOf'];
@@ -105,8 +109,7 @@ export default class JsonSchemaParser {
   }
 
   private isDeprecated(schemaElement: JSONSchema): boolean {
-    // deprecated is a custom field
-    return Boolean((schemaElement as any).deprecated);
+    return Boolean(schemaElement.deprecated);
   }
 
   private parseChildren(type: SchemaType, propertySchema: JSONSchema): SchemaNode[] {

@@ -382,6 +382,35 @@ describe('schema references are resolved in', () => {
   });
 });
 
+test('fields outside of ref override ref fields', () => {
+  let jsonSchema = {
+    "type": "object",
+    "properties": {
+      "property": {
+        "$ref": "#/definitions/BaseClass/ConcreteClass",
+        "deprecated": true
+      },
+    },
+    "definitions": {
+      "BaseClass": {
+        "ConcreteClass": {
+          "type": "object",
+          "title": "ClassName",
+          "description": "some description",
+          "deprecated": false
+        }
+      }
+    }
+  }
+  const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
+
+  const propertyNode = root.children[0] as PropertyNode;
+  expect(propertyNode.type).toBe('object');
+  expect(propertyNode.typeDetails).toBe('ClassName');
+  expect(propertyNode.description).toBe('some description');
+  expect(propertyNode.deprecated).toBe(true);
+});
+
 test('base class is undefined if schema is defined in "Others" section', () => {
   let jsonSchema = {
     "type": "object",

@@ -39,18 +39,22 @@ export default class JsonSchemaParser {
   }
 
   private parseProperty(name: string, required: boolean, propertySchema: JSONSchema): PropertyNode {
-    const resolvedPropertySchema = propertySchema.$ref ? this.getSchemaFromRef(propertySchema.$ref) : propertySchema;
-    let {type, typeDetails} = this.parseType(resolvedPropertySchema);
-    const deprecated = this.isDeprecated(propertySchema);
-    const childNodes = this.parseChildren(type, resolvedPropertySchema);
-    if (this.hasClassNodeChildren(type, propertySchema)) {
+    const enrichedSchema = this.enrichSchemaWithRef(propertySchema);
+    let {type, typeDetails} = this.parseType(enrichedSchema);
+    const deprecated = this.isDeprecated(enrichedSchema);
+    const childNodes = this.parseChildren(type, enrichedSchema);
+    if (this.hasClassNodeChildren(type, enrichedSchema)) {
       const typeDetailsAboutChildren = this.inferTypeDetailsFromChildClasses(childNodes as ClassNode[]);
       typeDetails = typeDetails ? `${typeDetails} ${typeDetailsAboutChildren}` : typeDetailsAboutChildren;
     }
     const propertyNode = new PropertyNode(this.idGenerator.generateId(), name, type, required, deprecated, typeDetails,
-      resolvedPropertySchema.description);
+      enrichedSchema.description);
     childNodes.forEach(c => propertyNode.addChild(c));
     return propertyNode;
+  }
+
+  private enrichSchemaWithRef(schemaElement: JSONSchema): JSONSchema {
+    return schemaElement.$ref ? {...this.getSchemaFromRef(schemaElement.$ref), ...schemaElement} : schemaElement;
   }
 
   private getSchemaFromRef(ref: string): JSONSchema {
@@ -124,8 +128,8 @@ export default class JsonSchemaParser {
   private getArrayItemType(array: JSONSchema): SchemaType {
     // we only have single object items in our schema, so it is not an array
     const items = array.items as JSONSchema;
-    const resolvedItems = items.$ref ? this.getSchemaFromRef(items.$ref) : items;
-    return this.parseType(resolvedItems).type;
+    const enrichedItems = this.enrichSchemaWithRef(items);
+    return this.parseType(enrichedItems).type;
   }
 
   private getClassElements(type: SchemaType, schemaElement: JSONSchema): JSONSchema[] {
@@ -158,13 +162,13 @@ export default class JsonSchemaParser {
   }
 
   private parseClass(classSchema: JSONSchema): ClassNode {
-    const resolvedClassSchema = classSchema.$ref ? this.getSchemaFromRef(classSchema.$ref) : classSchema;
+    const enrichedSchema = this.enrichSchemaWithRef(classSchema);
     const baseClass = classSchema.$ref ? this.extractBaseClassFromRef(classSchema.$ref) : undefined;
-    if (!resolvedClassSchema.title) throw new Error(`Class schema found without title: ${JSON.stringify(resolvedClassSchema)}`);
-    const deprecated = this.isDeprecated(resolvedClassSchema);
-    const classNode = new ClassNode(this.idGenerator.generateId(), resolvedClassSchema.title, deprecated,
-      resolvedClassSchema.description, baseClass);
-    const propertyNodes = this.parseProperties(resolvedClassSchema);
+    if (!enrichedSchema.title) throw new Error(`Class schema found without title: ${JSON.stringify(enrichedSchema)}`);
+    const deprecated = this.isDeprecated(enrichedSchema);
+    const classNode = new ClassNode(this.idGenerator.generateId(), enrichedSchema.title, deprecated,
+      enrichedSchema.description, baseClass);
+    const propertyNodes = this.parseProperties(enrichedSchema);
     propertyNodes.forEach(p => classNode.addChild(p));
     return classNode;
   }

@@ -49,6 +49,24 @@ Object.defineProperty(global.SVGElement.prototype, 'viewBox', {
   }
 });
 
+Object.defineProperty(global.SVGElement.prototype, 'width', {
+  writable: true,
+  value: {
+    baseVal: {
+      value: 0
+    }
+  }
+});
+
+Object.defineProperty(global.SVGElement.prototype, 'height', {
+  writable: true,
+  value: {
+    baseVal: {
+      value: 0
+    }
+  }
+});
+
 Object.defineProperty(global.URL, 'createObjectURL', {
   writable: true,
   value: jest.fn()

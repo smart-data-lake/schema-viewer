@@ -14,7 +14,7 @@ export const nodeClass = 'node';
 export type NodeSelection = d3.Selection<any, HierarchyPointNode<SchemaNode>, SVGSVGElement, unknown>;
 
 /**
- * This class is responsible for drawing nodes with the provided data and behaviour.
+ * Draws nodes with the provided data and behaviour.
  */
 export default class D3NodePainter {
   private readonly svg: SVGSVGElement;

@@ -16,6 +16,9 @@ const labelSpaceOffset = 80;
 
 const selectedClass = 'selected';
 
+/**
+ * Draws the dynamic schema tree and defines its behaviour.
+ */
 export default class D3SchemaTree {
   private readonly schema: SchemaNode;
   private readonly svg: SVGSVGElement;

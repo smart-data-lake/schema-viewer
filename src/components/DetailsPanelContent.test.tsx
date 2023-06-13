@@ -2,6 +2,7 @@ import React from 'react';
 import { ClassNode, PropertyNode, SchemaType } from '../utils/SchemaNode';
 import DetailsPanelContent from './DetailsPanelContent';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 const deprecatedText = 'deprecated';
 
@@ -9,7 +10,7 @@ test('details are shown for property node without type details', () => {
   const title = 'testProperty';
   const type: SchemaType = 'string';
   const description = 'some description';
-  const propertyNode = new PropertyNode(0, 'testProperty', 'string', false, false, undefined, 'some description');
+  const propertyNode = new PropertyNode(0, title, type, false, false, undefined, description);
 
   render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
 
@@ -24,7 +25,7 @@ test('details are shown for property node with type details', () => {
   const type: SchemaType = 'array';
   const typeDetails = 'string';
   const description = 'some description';
-  const propertyNode = new PropertyNode(0, 'testProperty', type, false, false, typeDetails, 'some description');
+  const propertyNode = new PropertyNode(0, title, type, false, false, typeDetails, description);
 
   render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
 
@@ -73,3 +74,25 @@ test('deprecated text is shown for deprecated node', () => {
   expect(screen.getByText(description)).toBeInTheDocument();
   expect(screen.getByText(deprecatedText)).toBeInTheDocument();
 })
+
+test('share button copies node url to clipboard', async () => {
+  const propertyNode = new PropertyNode(0, 'testProperty', 'string', false, false, undefined, 'some description');
+  const nodeUrl = 'nodeUrl';
+  let clipboard = '';
+
+  Object.defineProperty(global.navigator, 'clipboard', {
+    writable: true,
+    value: {
+      writeText: (text: string) => {
+        clipboard = text;
+        return Promise.resolve();
+      }
+    }
+  });
+
+  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => nodeUrl} />)
+  const shareButton = screen.getByRole('button');
+  await userEvent.click(shareButton);
+
+  expect(clipboard).toBe(nodeUrl);
+});

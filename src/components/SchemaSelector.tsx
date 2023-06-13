@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Select, Option } from '@mui/joy';
 import { getSchemaFromUrlParams } from '../utils/SchemaSerialization';
 
+/**
+ * Dropdown for selecting the schema to visualize.
+ */
 export default function SchemaSelector(props: { loadSchemaNames: () => Promise<string[]>, selectedSchemaName: string | undefined, setSelectedSchemaName: (name: string) => void }) {
   const [schemaNames, setSchemaNames] = useState<string[]>([]);
 

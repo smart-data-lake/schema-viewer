@@ -34,7 +34,7 @@ interface SchemaViewerProps {
 }
 
 /**
- * Base component for the schema viewer.
+ * Component for visualizing Smart Data Lake Builder config schemas.
  */
 export default function SchemaViewer(props: SchemaViewerProps) {
   const [selectedSchemaName, setSelectedSchemaName] = useState<string>();

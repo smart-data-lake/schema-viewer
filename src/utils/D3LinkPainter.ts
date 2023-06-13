@@ -8,7 +8,7 @@ type LinkSelection = d3.Selection<any, HierarchyPointLink<SchemaNode>, SVGSVGEle
 const linkClass = 'link';
 
 /**
- * This class is responsible for drawing links between nodes.
+ * Draws links between nodes.
  */
 export default class D3LinkPainter {
   private readonly svg: SVGSVGElement;

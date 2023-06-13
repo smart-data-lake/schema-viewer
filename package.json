@@ -32,6 +32,7 @@
     "build": "tsc && npm run copy-files",
     "copy-files": "copyfiles -u 1 src/components/**/*.css dist/",
     "test": "react-scripts test",
+    "lint": "npx eslint src --ext .js,.jsx,.ts,.tsx --max-warnings=0",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

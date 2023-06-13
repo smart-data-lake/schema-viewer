@@ -22,7 +22,7 @@ jobs:
           node-version: 18
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npx eslint src --ext .js,.jsx,.ts,.tsx --max-warnings=0
+      - run: npm run lint
       - run: npm run build
       - run: npm test
       - run: npm publish

@@ -9,6 +9,9 @@ import StyledSvg from './StyledSvg';
 import GraphLegend from './GraphLegend';
 import { SchemaTreeColors } from '../utils/D3NodePainter';
 
+/**
+ * Component for rendering the schema tree and its associated components like the zoom buttons and the legend.
+ */
 export default function SchemaGraph(props: {
   schema: SchemaNode | null, setSelectedNode: (n: SchemaNode | null) => void, selectedNode: SchemaNode | null
 }) {

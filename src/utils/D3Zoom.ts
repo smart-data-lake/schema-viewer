@@ -4,6 +4,9 @@ import * as d3 from 'd3';
 const minScale = 0.3;
 const maxScale = 3;
 
+/**
+ * Manages zooming and translating SVGs.
+ */
 export default class D3Zoom {
   private readonly zoomBehaviour: ZoomBehavior<SVGSVGElement, any>;
   private readonly zoomTarget: SVGSVGElement;

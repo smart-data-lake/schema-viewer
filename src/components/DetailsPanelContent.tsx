@@ -3,13 +3,17 @@ import { Box, Divider, IconButton, styled, Tooltip, Typography } from '@mui/joy'
 import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from '../utils/SchemaNode';
 import { Share } from '@mui/icons-material';
 import { deprecatedVisitor } from '../utils/D3NodeUtils';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'; // Github flavoured markdown (for hyperlinks)
+import './DetailsPanelContent.css'
+
 
 export default function DetailsPanelContent(props: { node: SchemaNode, createNodeUrl: (n: SchemaNode) => string }) {
   const nodeName = props.node.accept(nodeNameVisitor);
   const nodeType = props.node.accept(nodeTypeVisitor);
   const nodeDescription = props.node.accept(nodeDescriptionVisitor);
   const deprecated = props.node.accept(deprecatedVisitor);
-
+  
   return (
     <Box sx={{flex: 1, paddingLeft: 2, paddingRight: 2, overflow: 'auto'}}>
       <Box sx={{display: 'flex', justifyContent: 'space-between', marginTop: 3, alignItems: 'center'}}>
@@ -22,7 +26,11 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
       <SectionText>{nodeType}</SectionText>
       <SectionDivider />
       <SectionTitle>Definition</SectionTitle>
-      <SectionText>{nodeDescription ? nodeDescription : 'No description provided.'}</SectionText>
+      <Typography component={'div'} level="body2" className="markdown-container">
+        <Markdown remarkPlugins={[remarkGfm]}>
+          {nodeDescription ? nodeDescription : 'No description provided.'}
+        </Markdown>
+      </Typography>
     </Box>
   );
 }

@@ -30,7 +30,7 @@ export default function SchemaSelector(props: { loadSchemaNames: () => Promise<s
   }
 
   return (
-    <Select value={props.selectedSchemaName}
+    <Select value={props.selectedSchemaName ?? ''}
             onChange={(_, newValue) => newValue && props.setSelectedSchemaName(newValue)}
             sx={{width: 300, marginLeft: 7}}>
       {schemaNames.map(schema => <Option key={schema} value={schema}>{schema}</Option>)}

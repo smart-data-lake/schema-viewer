@@ -1,3 +1,4 @@
+import React  from 'react';
 import { Box } from '@mui/joy';
 
 export default function DetailsPanelBorder(props: { setDetailsPanelWidth: (width: number) => void }) {

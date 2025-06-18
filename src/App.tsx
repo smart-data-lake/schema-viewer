@@ -1,3 +1,4 @@
+import React  from 'react';
 import SchemaViewer from './components/SchemaViewer';
 import './App.css';
 

@@ -41,7 +41,6 @@ export abstract class SchemaNode {
 }
 
 export class RootNode extends SchemaNode {
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(id: number) {
     super(id);
   }

@@ -1,3 +1,4 @@
+import React  from 'react';
 import { Box, Divider, IconButton, styled, Tooltip, Typography } from '@mui/joy';
 import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from '../utils/SchemaNode';
 import { Share } from '@mui/icons-material';

@@ -3,12 +3,26 @@
   "description": "React component for visualizing the Smart Data Lake Builder config schema.",
   "version": "1.2.0",
   "main": "./dist/main.js",
-  "peerDependencies": {
+  "dependencies": {
+    "@babel/plugin-transform-class-properties": "^7.27.1",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
+    "@babel/plugin-transform-numeric-separator": "^7.27.1",
+    "@babel/plugin-transform-optional-chaining": "^7.27.1",
+    "@babel/plugin-transform-private-methods": "^7.27.1",
+    "@babel/plugin-transform-private-property-in-object": "^7.27.1",
+    "@base-ui-components/react": "^1.0.0-beta.0",
     "@emotion/react": "11.x",
     "@emotion/styled": "11.x",
+    "@eslint/config-array": "^0.20.1",
+    "@eslint/object-schema": "^2.1.6",
     "@mui/icons-material": "^7.1.1",
     "@mui/joy": "^5.0.0-beta.52",
+    "@mui/material": "^7.1.1",
+    "@mui/system": "^7.1.1",
     "d3": "7.x",
+    "globals": "^16.2.0",
+    "json-schema": "^0.4.0",
+    "lru-cache": "^11.1.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1"
   },
@@ -16,6 +30,7 @@
     "@eslint/compat": "^1.3.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.29.0",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -27,7 +42,6 @@
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.34.1",
     "@vitejs/plugin-react": "^4.5.2",
-    "copyfiles": "^2.4.1",
     "eslint": "^9.29.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
@@ -44,9 +58,8 @@
     "web-vitals": "^5.0.3"
   },
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build && npm run copy-files",
-    "copy-files": "copyfiles -u 1 src/components/**/*.css dist/",
+    "start": "vite --force",
+    "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -76,21 +89,5 @@
     "type": "git",
     "url": "https://github.com/smart-data-lake/schema-viewer"
   },
-  "license": "GPL-3.0",
-  "dependencies": {
-    "@babel/plugin-transform-class-properties": "^7.27.1",
-    "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
-    "@babel/plugin-transform-numeric-separator": "^7.27.1",
-    "@babel/plugin-transform-optional-chaining": "^7.27.1",
-    "@babel/plugin-transform-private-methods": "^7.27.1",
-    "@babel/plugin-transform-private-property-in-object": "^7.27.1",
-    "@base-ui-components/react": "^1.0.0-beta.0",
-    "@eslint/config-array": "^0.20.1",
-    "@eslint/object-schema": "^2.1.6",
-    "@mui/material": "^7.1.1",
-    "@mui/system": "^7.1.1",
-    "globals": "^16.2.0",
-    "json-schema": "^0.4.0",
-    "lru-cache": "^11.1.0"
-  }
+  "license": "GPL-3.0"
 }

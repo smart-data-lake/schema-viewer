@@ -80,6 +80,7 @@ export default function SchemaViewer(props: SchemaViewerProps) {
   useEffect(() => {
     if (schema && hasPathUrlParam()) {
       const node = getNodeFromPathUrlParam(schema);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       node && setSelectedNode(node);
     }
   }, [schema]);

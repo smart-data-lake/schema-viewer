@@ -1,5 +1,6 @@
 import JsonSchemaParser, { JSONSchema } from './JsonSchemaParser';
 import { ClassNode, PropertyNode } from './SchemaNode';
+import { test, expect } from 'vitest';
 
 test('fields of properties are parsed', () => {
   let jsonSchema = {

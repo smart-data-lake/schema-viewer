@@ -85,3 +85,35 @@ The default theme for the schema viewer can be imported with
 ```typescript
 import { defaultTheme } from 'sdlb-schema-viewer';
 ```
+
+## Build
+For building and testing the component, Node.js (Version 22+) and yarn are required. 
+
+### Install
+
+Checkout the repository and install the required packages by executing:
+
+`yarn install`
+
+in the project directory.
+
+### Available Scripts
+
+In the project directory, you can run:
+
+* `yarn start` \
+Runs the app in the development mode. \
+Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+The page will reload if you make edits. You will also see any lint errors in the console.
+
+* `yarn test` \
+Launches the test runner in the interactive watch mode.
+
+* `yarn build` \
+Compiles the components into the `dist` folder to be used by other React projects.
+
+### Test with SDLB website
+
+To test changes of schema-viewer component with SDLB documentation website, build the component locally and run `yarn pack`, then in SDLB projects `documentation` branch:
+* remove schema-viewer from `dependencies` in package.json file
+* add local packed dependency using `yarn add ../schema-viewer/sdlb-schema-viewer-v2.0.0.tgz`.

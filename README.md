@@ -111,3 +111,9 @@ Launches the test runner in the interactive watch mode.
 
 * `yarn build` \
 Compiles the components into the `dist` folder to be used by other React projects.
+
+### Test with SDLB website
+
+To test changes of schema-viewer component with SDLB documentation website, build the component locally and run `yarn pack`, then in SDLB projects `documentation` branch:
+* remove schema-viewer from `dependencies` in package.json file
+* add local packed dependency using `yarn add ../schema-viewer/sdlb-schema-viewer-v2.0.0.tgz`.

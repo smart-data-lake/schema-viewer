@@ -1,5 +1,6 @@
 import { ClassNode, PropertyNode, RootNode, SchemaNode } from './SchemaNode';
 import { labelVisitor } from './D3NodeUtils';
+import { test, expect, describe } from 'vitest';
 
 const arrayPropertyWithChildren = new PropertyNode(0, 'arrayProperty', 'array', false, false, 'SomeClass');
 arrayPropertyWithChildren.addChild(new ClassNode(1, 'SomeClass', false));

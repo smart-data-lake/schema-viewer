@@ -1,5 +1,6 @@
 import { ClassNode, PropertyNode, RootNode, SchemaNode } from './SchemaNode';
 import { createUrlToNode, getNodeFromPathUrlParam, getSchemaFromUrlParams } from './SchemaSerialization';
+import { test, expect } from 'vitest';
 
 test('serializing and deserializing gives the same node', () => {
   const schemaName = 'testSchema';
@@ -55,8 +56,8 @@ function createDummySchema(): SchemaNode {
  * see https://stackoverflow.com/questions/54021037/how-to-mock-window-location-href-with-jest-vuejs.
  */
 function setWindowLocationUrl(url: string) {
-  //@ts-ignore
+  //@ts-expect-error overriding location for test setup
   delete window.location;
-  //@ts-ignore
+  //@ts-expect-error assigning mock location for test
   window.location = new URL(url);
 }

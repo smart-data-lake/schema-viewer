@@ -4,6 +4,7 @@ import { ClassNode, PropertyNode, RootNode, SchemaNode } from './SchemaNode';
 import D3NodePainter, { SchemaTreeColors } from './D3NodePainter';
 import * as d3 from 'd3';
 import { hierarchy, HierarchyPointNode } from 'd3';
+import { test, expect } from 'vitest';
 
 test('draws lone root', () => {
   const root = new RootNode(0);

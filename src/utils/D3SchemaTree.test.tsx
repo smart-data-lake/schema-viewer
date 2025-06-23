@@ -1,9 +1,11 @@
+import React  from 'react';
 import { render, screen } from '@testing-library/react';
 import D3SchemaTree from './D3SchemaTree';
 import { PropertyNode, RootNode, SchemaNode } from './SchemaNode';
 import D3Zoom from './D3Zoom';
 import { SchemaTreeColors } from './D3NodePainter';
 import userEvent from '@testing-library/user-event';
+import { test, expect } from 'vitest';
 
 test('draws only root and first level nodes', async () => {
   const schema = createDummySchema();

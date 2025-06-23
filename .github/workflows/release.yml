@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  publish-npm:
+  publish-yarn:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
       - run: yarn lint
       - run: yarn build
       - run: yarn test
-      - run: yarn publish
+      - run: yarn npm publish --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: tag version

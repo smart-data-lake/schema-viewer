@@ -4,6 +4,9 @@
   "version": "2.0.0-rc.0",
   "main": "./dist/main.js",
   "types": "dist/main.d.ts",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "peerDependencies": {
     "@base-ui-components/react": "1.0.0-beta.x",
     "@emotion/react": "11.x",
@@ -75,7 +78,7 @@
     "web-vitals": "^5.0.3"
   },
   "scripts": {
-    "start": "vite --force",
+    "start": "vite --force --host",
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",

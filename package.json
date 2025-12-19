@@ -1,9 +1,12 @@
 {
-  "name": "sdlb-schema-viewer",
+  "name": "@smart-data-lake/sdlb-schema-viewer",
   "description": "React component for visualizing the Smart Data Lake Builder config schema.",
   "version": "2.0.0",
   "main": "./dist/main.js",
   "types": "dist/main.d.ts",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "peerDependencies": {
     "@base-ui-components/react": "1.0.0-beta.x",
     "@emotion/react": "11.x",

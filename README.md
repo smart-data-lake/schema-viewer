@@ -4,9 +4,19 @@ A React component for visualizing the [Smart Data Lake Builder](https://github.c
 It retrieves the SDLB JSON schemas and renders them as dynamic trees using the [d3](https://d3js.org/) library.
 
 ## Installation
+In order to install the package, you need to [authenticate yourselves against GitHub](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-to-github-packages).
+
+In order that the package is fetched from the correct registry, add the following to your `.npmrc`:
+
+```bash
+@smart-data-lake:registry=https://npm.pkg.github.com  
+//npm.pkg.github.com/:_authToken=TOKEN
+```
+
+Then you can install the package as follows:
 
 ```
-npm install sdlb-schema-viewer
+npm install @smart-data-lake/sdlb-schema-viewer[@x.x.x]
 ```
 
 ## Usage

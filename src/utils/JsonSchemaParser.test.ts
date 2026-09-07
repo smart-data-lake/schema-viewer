@@ -240,11 +240,13 @@ describe('schema references are resolved in', () => {
         "BaseClass": {
           "ConcreteClass1": {
             "type": "object",
-            "title": "ClassName1"
+            "title": "ClassName1",
+            "description": "some description"
           },
           "ConcreteClass2": {
             "type": "object",
-            "title": "ClassName2"
+            "title": "ClassName2",
+            "deprecated": true,
           }
         }
       }
@@ -257,7 +259,11 @@ describe('schema references are resolved in', () => {
     expect(propertyNode.type).toBe("mapOf");
     expect(propertyNode.typeDetails).toBe('BaseClass');
     expect(classNode1!.baseClass).toBe('BaseClass');
+    expect(classNode1!.description).toBe('some description');
+    expect(classNode1!.deprecated).toBe(false);
     expect(classNode2!.baseClass).toBe('BaseClass');
+    expect(classNode2!.description).toBeUndefined();
+    expect(classNode2!.deprecated).toBe(true);
   });
 
   test('array with single ref', () => {

@@ -45,6 +45,7 @@
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.1.1",
     "@mui/system": "^7.1.1",
+    "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -83,7 +84,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "lint": "npx eslint src --ext .js,.jsx,.ts,.tsx --max-warnings=0"
+    "lint": "npx eslint src tests --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "browserslist": {
     "production": [

@@ -16,15 +16,19 @@ Node 22+ and yarn are required.
 yarn install                       # yarn install --frozen-lockfile in CI
 yarn start                         # vite dev server on http://localhost:5173
 yarn build                         # library build into dist/
-yarn test                          # vitest run (single pass)
+yarn test                          # vitest run (single pass), unit tests in src only
 yarn test:watch
-yarn lint                          # eslint src, --max-warnings=0 (warnings fail)
+yarn test:e2e                      # playwright, specs in tests/e2e
+yarn test:e2e:ui                   # interactive playwright runner
+yarn lint                          # eslint src tests, --max-warnings=0 (warnings fail)
 
 npx vitest run src/utils/JsonSchemaParser.test.ts        # one test file
 npx vitest run -t 'part of test name'                    # one test by name
+npx playwright test element-links                        # one e2e spec
+npx playwright install chromium                          # once, before the first e2e run
 ```
 
-CI (`.github/workflows/build.yml`) runs `lint`, `build`, `test` on Node 22/23/24 for every branch except `main` and for PRs.
+CI (`.github/workflows/build.yml`) runs `lint`, `build`, `test` on Node 22/23/24, plus `test:e2e` on Node 22, for every branch except `main` and for PRs.
 
 ## Branching and release
 
@@ -69,6 +73,28 @@ Vitest with `globals: true` and the jsdom environment, configured in `vite.confi
 `src/example-schema.json` is the shared fixture and mirrors real SDLB schema structure (`global`, `connections`, `dataObjects`, `actions`); prefer extending it over inlining schemas in tests.
 
 The eslint config promotes `testing-library/no-node-access` to an **error**, so assertions must go through Testing Library queries even for the d3-rendered SVG (query by the rendered label text, e.g. `dataObjects[mapOf]*`).
+
+## End-to-end tests
+
+`tests/e2e` holds Playwright specs which drive the dev harness in a real browser — the layout-dependent
+parts of the d3 graph (zoom, centering, level spacing) cannot be covered in jsdom. Vitest is scoped to
+`src/**/*.test.{ts,tsx}` in `vite.config.ts` so it does not pick the specs up.
+
+`playwright.config.ts` starts the dev server with `vite.config.e2e.ts`, which serves the schemas from
+`tests/e2e/fixtures/schemas.ts` instead of from smartdatalake.ch (`define` overrides `VITE_SCHEMAS_URL`,
+which `src/App.tsx` reads). Those fixtures are both derived from `src/example-schema.json`: the newest one
+is the schema unchanged, the older one has a top-level property, a `dataObjects` class and a class property
+removed, so the same element sits at different child indexes in the two versions. That is what the link
+specs need — there is no second schema file in the repository.
+
+Specs address graph nodes by their rendered label (`nodeLabel`, `nodeCircle` in `tests/e2e/viewer.ts`) and
+the unlabelled icon buttons by the `data-testid` which `@mui/icons-material` puts on the icon. Constants
+that describe the fixtures — labels, names, and the serialized `path` parameters — live in
+`tests/e2e/fixture.ts`, so a change of the path format only has to be made there. `openViewer()` waits for
+the tree before interacting: `NodeSearch` is rerendered when the schema arrives and discards earlier input.
+
+The `test.fixme` specs in `element-links.spec.ts` describe how links should behave across schema versions
+and fail today, because a `path` is a list of child indexes.
 
 ## Testing changes against the SDLB website
 

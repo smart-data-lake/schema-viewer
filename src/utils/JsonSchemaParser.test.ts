@@ -120,6 +120,97 @@ test('arrays with simple items do not have children', () => {
   expect(arrayNode.children).toHaveLength(0);
 });
 
+test('map with simple values is parsed with the value type as type details', () => {
+  let jsonSchema: JSONSchema = {
+    "type": "object",
+    "properties": {
+      "property": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    }
+  }
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
+
+  const mapNode = root.children[0] as PropertyNode;
+  expect(mapNode.type).toBe('mapOf');
+  expect(mapNode.typeDetails).toBe('string');
+  expect(mapNode.children).toHaveLength(0);
+});
+
+test('map with a single class as values is parsed to a class node child', () => {
+  let jsonSchema: JSONSchema = {
+    "type": "object",
+    "properties": {
+      "property": {
+        "type": "object",
+        "description": "some description",
+        "additionalProperties": {
+          "type": "object",
+          "title": "ClassName",
+          "required": ["classProperty"],
+          "properties": {
+            "classProperty": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
+
+  const mapNode = root.children[0] as PropertyNode;
+  const classNode = mapNode.children[0] as ClassNode;
+  const propertyInClassNode = classNode.children[0] as PropertyNode;
+  expect(mapNode.type).toBe('mapOf');
+  expect(mapNode.typeDetails).toBe('ClassName');
+  expect(mapNode.description).toBe('some description');
+  expect(mapNode.children).toHaveLength(1);
+  expect(classNode.className).toBe('ClassName');
+  expect(propertyInClassNode.propertyName).toBe('classProperty');
+  expect(propertyInClassNode.required).toBe(true);
+});
+
+test('map with untitled objects as values does not have children', () => {
+  let jsonSchema: JSONSchema = {
+    "type": "object",
+    "properties": {
+      "property": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object"
+        }
+      }
+    }
+  }
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
+
+  const mapNode = root.children[0] as PropertyNode;
+  expect(mapNode.type).toBe('mapOf');
+  expect(mapNode.typeDetails).toBe('object');
+  expect(mapNode.children).toHaveLength(0);
+});
+
+test.each([[true], [false]])('object with additionalProperties=%s is not parsed as map', (additionalProperties: boolean) => {
+  let jsonSchema: JSONSchema = {
+    "type": "object",
+    "properties": {
+      "property": {
+        "type": "object",
+        "additionalProperties": additionalProperties
+      }
+    }
+  }
+  const root = new JsonSchemaParser(jsonSchema).parseSchema();
+
+  const objectNode = root.children[0] as PropertyNode;
+  expect(objectNode.type).toBe('object');
+  expect(objectNode.children).toHaveLength(0);
+});
+
 test('enum is parsed with possible values', () => {
   let jsonSchema: JSONSchema = {
     "type": "object",
@@ -264,6 +355,36 @@ describe('schema references are resolved in', () => {
     expect(classNode2!.baseClass).toBe('BaseClass');
     expect(classNode2!.description).toBeUndefined();
     expect(classNode2!.deprecated).toBe(true);
+  });
+
+  test('mapOf with single ref', () => {
+    let jsonSchema = {
+      "type": "object",
+      "properties": {
+        "property": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/BaseClass/ConcreteClass"
+          }
+        }
+      },
+      "definitions": {
+        "BaseClass": {
+          "ConcreteClass": {
+            "type": "object",
+            "title": "ClassName"
+          },
+        }
+      }
+    }
+    const root = new JsonSchemaParser(jsonSchema as JSONSchema).parseSchema();
+
+    const propertyNode = root.children[0] as PropertyNode;
+    const classNode = propertyNode.children[0] as ClassNode;
+    expect(propertyNode.type).toBe('mapOf');
+    expect(propertyNode.typeDetails).toBe('ClassName');
+    expect(classNode.className).toBe('ClassName');
+    expect(classNode.baseClass).toBe('BaseClass');
   });
 
   test('array with single ref', () => {

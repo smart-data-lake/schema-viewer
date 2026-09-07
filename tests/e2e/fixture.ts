@@ -90,5 +90,16 @@ export const HIVE_TABLE_CONNECTION = {
   label: 'HiveTableConnection{ }'
 };
 
+/**
+ * A map inside global whose values are defined by a single class in additionalProperties, used to check
+ * that such maps show their values, see https://github.com/smart-data-lake/schema-viewer/issues/26.
+ */
+export const SECRET_PROVIDERS_ELEMENT = {
+  name: 'secretProviders',
+  label: 'secretProviders[mapOf]',
+  type: 'mapOf: SecretProviderConfig',
+  valueLabel: 'SecretProviderConfig{ }'
+};
+
 /** the first property of global, used to check that nodes start out collapsed */
 export const GLOBAL_FIRST_PROPERTY_LABEL = 'kryoClasses[string]';

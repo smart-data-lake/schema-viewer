@@ -47,15 +47,17 @@ export const TABLE_ELEMENT = {
   labelsOnPath: [TOP_LEVEL_LABELS.dataObjects, 'HiveTableDataObject{ }', 'table{ }*'],
   /** the ancestors shown below the name in the search results */
   searchAncestors: 'dataObjects>HiveTableDataObject>table',
-  pathParamInNewestSchema: '[2,10,6]',
-  pathParamInOlderSchema: '[1,9,5]'
+  pathParam: 'dataObjects/HiveTableDataObject/table',
+  /** how the same element was referenced before the paths were composed of names */
+  positionPathParamInNewestSchema: '[2,10,6]',
+  positionPathParamInOlderSchema: '[1,9,5]'
 };
 
 /** a top level element, used to check that the path parameter follows the selection */
 export const ACTIONS_ELEMENT = {
   name: 'actions',
   label: TOP_LEVEL_LABELS.actions,
-  pathParamInNewestSchema: '[3]'
+  pathParam: 'actions'
 };
 
 /**
@@ -66,11 +68,11 @@ export const ELEMENT_MISSING_IN_OLDER_SCHEMA = {
   name: MISSING_IN_OLDER_SCHEMA.hiveTableDataObjectProperty,
   parentName: 'HiveTableDataObject',
   parentLabel: 'HiveTableDataObject{ }',
-  pathParamInNewestSchema: '[2,10,1]'
+  pathParam: 'dataObjects/HiveTableDataObject/path'
 };
 
 /** a path parameter which does not point to an element in any of the schemas */
-export const UNKNOWN_PATH_PARAM = '[99]';
+export const UNKNOWN_PATH_PARAM = 'doesNotExist';
 
 /** a class of dataObjects, used to check the details panel and the search */
 export const HIVE_TABLE_DATA_OBJECT = {

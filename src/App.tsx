@@ -2,7 +2,8 @@ import React  from 'react';
 import SchemaViewer from './components/SchemaViewer';
 import './App.css';
 
-const schemasUrl = "https://smartdatalake.ch/json-schema-viewer/schemas/";
+// the e2e tests point this at their fixture schemas, see vite.config.e2e.ts
+const schemasUrl = import.meta.env.VITE_SCHEMAS_URL ?? "https://smartdatalake.ch/json-schema-viewer/schemas/";
 
 /**
  * This component is only used for local testing and is not part of the npm package.

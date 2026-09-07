@@ -117,7 +117,14 @@ Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
 The page will reload if you make edits. You will also see any lint errors in the console.
 
 * `yarn test` \
-Launches the test runner in the interactive watch mode.
+Runs the unit tests in `src` once. `yarn test:watch` launches the test runner in the interactive watch mode.
+
+* `yarn test:e2e` \
+Runs the end-to-end tests in `tests/e2e`, which drive the component in a real browser with
+[Playwright](https://playwright.dev). The dev server and the schemas it serves are provided by the tests,
+see `playwright.config.ts` and `vite.config.e2e.ts`. On the first run, install the browser with
+`npx playwright install chromium`. \
+`yarn test:e2e:ui` opens the interactive Playwright runner, `yarn test:e2e:report` the report of the last run.
 
 * `yarn build` \
 Compiles the components into the `dist` folder to be used by other React projects.

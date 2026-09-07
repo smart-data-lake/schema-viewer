@@ -6,6 +6,7 @@ import {
   NEWEST_SCHEMA,
   OLDER_SCHEMA,
   ROOT_LABEL,
+  SECRET_PROVIDERS_ELEMENT,
   TOP_LEVEL_LABELS
 } from './fixture';
 import {
@@ -54,6 +55,17 @@ test.describe('schema graph', () => {
     // the type details of an element with class children are inferred from their common base class
     await expect(detailsPanel(page)).toContainText('mapOf: DataObject');
     await expect(detailsPanel(page)).toContainText('No description provided.');
+  });
+
+  test('shows the values of a map which are defined by a single class', async ({ page }) => {
+    await openViewer(page);
+    await nodeCircle(page, TOP_LEVEL_LABELS.global).click();
+
+    await nodeLabel(page, SECRET_PROVIDERS_ELEMENT.label).click();
+    await expect(detailsPanel(page)).toContainText(SECRET_PROVIDERS_ELEMENT.type);
+
+    await nodeCircle(page, SECRET_PROVIDERS_ELEMENT.label).click();
+    await expect(nodeLabel(page, SECRET_PROVIDERS_ELEMENT.valueLabel)).toBeVisible();
   });
 
   test('keeps the selected element while the details panel is closed', async ({ page }) => {

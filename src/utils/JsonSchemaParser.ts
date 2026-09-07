@@ -8,7 +8,7 @@ type CanBeDeprecated = {
 }
 
 // types which are used when a class can be chosen from a list of classes
-const classSelectionTypes: SchemaType[] = ['anyOf', 'allOf', 'oneOf', 'mapOf'];
+const classSelectionTypes: SchemaType[] = ['anyOf', 'allOf', 'oneOf'];
 
 /**
  * For constructing a {@link SchemaNode} tree from a JSON schema.
@@ -82,8 +82,8 @@ export default class JsonSchemaParser {
       return {type: 'anyOf'};
     } else if (schemaElement.allOf) {
       return {type: 'allOf'};
-    } else if (schemaElement.additionalProperties && (schemaElement.additionalProperties as JSONSchema).oneOf) {
-      return {type: 'mapOf'};
+    } else if (this.isMap(schemaElement)) {
+      return this.parseMapType(schemaElement);
     } else if (schemaElement.enum) {
       return {type: 'enum', typeDetails: schemaElement.enum.join(', ')};
     } else if (schemaElement.const) {
@@ -100,11 +100,31 @@ export default class JsonSchemaParser {
   }
 
   private parseArrayType(array: JSONSchema): { type: SchemaType, typeDetails?: string } {
-    let itemType = this.getArrayItemType(array);
+    // we only have single object items in our schema, so items is not an array
+    const itemType = this.getValueType(array.items as JSONSchema);
     if (itemType === 'object') {
       return {type: 'array'};
     } else {
       return {type: 'array', typeDetails: itemType};
+    }
+  }
+
+  /**
+   * Maps are defined as objects without properties, where the schema of the values is given in additionalProperties.
+   */
+  private isMap(schemaElement: JSONSchema): boolean {
+    const values = schemaElement.additionalProperties;
+    // additionalProperties can also be a boolean, which does not tell us anything about the values
+    return !schemaElement.properties && typeof values === 'object' && Object.keys(values).length > 0;
+  }
+
+  private parseMapType(map: JSONSchema): { type: SchemaType, typeDetails?: string } {
+    const values = this.getMapValues(map);
+    if (this.hasClassValues(values)) {
+      // the type details of class values are inferred from the child class nodes
+      return {type: 'mapOf'};
+    } else {
+      return {type: 'mapOf', typeDetails: this.getValueType(values)};
     }
   }
 
@@ -124,15 +144,38 @@ export default class JsonSchemaParser {
   }
 
   private hasClassNodeChildren(type: SchemaType, propertySchema: JSONSchema): boolean {
-    return classSelectionTypes.includes(type)
-      || (type === 'array' && [...classSelectionTypes, 'object'].includes(this.getArrayItemType(propertySchema)));
+    switch (type) {
+      case 'array':
+        // we only have single object items in our schema, so items is not an array
+        return Boolean(propertySchema.items) && this.hasClassValues(propertySchema.items as JSONSchema);
+      case 'mapOf':
+        return this.hasClassValues(this.getMapValues(propertySchema));
+      default:
+        return classSelectionTypes.includes(type);
+    }
   }
 
-  private getArrayItemType(array: JSONSchema): SchemaType {
-    // we only have single object items in our schema, so it is not an array
-    const items = array.items as JSONSchema;
-    const enrichedItems = this.enrichSchemaWithRef(items);
-    return this.parseType(enrichedItems).type;
+  /**
+   * @returns whether the values of a container type, i.e. the items of an array or the values of a map,
+   * are parsed to {@link ClassNode}s.
+   */
+  private hasClassValues(valueSchema: JSONSchema): boolean {
+    const enrichedValues = this.enrichSchemaWithRef(valueSchema);
+    const valueType = this.parseType(enrichedValues).type;
+    if (valueType === 'mapOf') {
+      // for maps of maps the classes are the values of the inner map
+      return this.hasClassValues(this.getMapValues(enrichedValues));
+    }
+    // objects are only parsed to class nodes if they have a title, which is used as class name
+    return classSelectionTypes.includes(valueType) || (valueType === 'object' && Boolean(enrichedValues.title));
+  }
+
+  private getMapValues(map: JSONSchema): JSONSchema {
+    return map.additionalProperties as JSONSchema;
+  }
+
+  private getValueType(valueSchema: JSONSchema): SchemaType {
+    return this.parseType(this.enrichSchemaWithRef(valueSchema)).type;
   }
 
   private getClassElements(type: SchemaType, schemaElement: JSONSchema): JSONSchema[] {
@@ -146,22 +189,26 @@ export default class JsonSchemaParser {
       case 'oneOf':
         return schemaElement.oneOf as JSONSchema[];
       case 'mapOf':
-        return (schemaElement.additionalProperties as JSONSchema).oneOf as JSONSchema[];
+        return this.getClassElementsForValues(this.getMapValues(schemaElement));
       case 'array':
-        return this.getClassElementsForArray(schemaElement);
+        // we only have single object items in our schema, so items is not an array
+        return schemaElement.items ? this.getClassElementsForValues(schemaElement.items as JSONSchema) : [];
       default:
         throw new Error(`Type ${type} does not have class node children.`)
     }
   }
 
-  private getClassElementsForArray(arrayElement: JSONSchema): JSONSchema[] {
-    if (!arrayElement.items) {
-      return [];
-    }
-    // we only have single object items in our schema, so it is not an array
-    const items = arrayElement.items as JSONSchema;
-    const itemsType = this.getArrayItemType(arrayElement);
-    return classSelectionTypes.includes(itemsType) ? this.getClassElements(itemsType, items) : [items];
+  /**
+   * @returns the schemas of the classes for the values of a container type, i.e. the items of an array or the
+   * values of a map.
+   */
+  private getClassElementsForValues(valueSchema: JSONSchema): JSONSchema[] {
+    const valueType = this.getValueType(valueSchema);
+    return [...classSelectionTypes, 'mapOf'].includes(valueType)
+      // for these types the class schemas are nested one level deeper
+      ? this.getClassElements(valueType, this.enrichSchemaWithRef(valueSchema))
+      // the reference is not resolved here, because the base class is extracted from it when the class is parsed
+      : [valueSchema];
   }
 
   private parseClass(classSchema: JSONSchema): ClassNode {

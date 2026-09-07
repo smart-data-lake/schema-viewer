@@ -10,7 +10,7 @@ The public API surface is exactly `src/main.ts`: `SchemaViewer` and `defaultThem
 
 ## Commands
 
-Node 22+ and yarn are required.
+Node 24+ and yarn are required.
 
 ```bash
 yarn install                       # yarn install --frozen-lockfile in CI
@@ -28,7 +28,7 @@ npx playwright test element-links                        # one e2e spec
 npx playwright install chromium                          # once, before the first e2e run
 ```
 
-CI (`.github/workflows/build.yml`) runs `lint`, `build`, `test` on Node 22/23/24, plus `test:e2e` on Node 22, for every branch except `main` and for PRs.
+CI (`.github/workflows/build.yml`) runs `lint`, `build`, `test` and, in a second job, `test:e2e` on Node 24. It is triggered by pull requests and by pushes to `develop` only, so a change on a branch with a PR is not built twice.
 
 ## Branching and release
 

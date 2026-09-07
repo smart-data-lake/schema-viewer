@@ -97,7 +97,7 @@ import { defaultTheme } from 'sdlb-schema-viewer';
 ```
 
 ## Build
-For building and testing the component, Node.js (Version 22+) and yarn are required. 
+For building and testing the component, Node.js (Version 24+) and yarn are required. 
 
 ### Install
 

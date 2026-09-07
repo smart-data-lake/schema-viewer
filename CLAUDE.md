@@ -46,7 +46,7 @@ Rendering is a two-stage pipeline, and the boundary between them matters:
 
 **1. JSON Schema → `SchemaNode` tree** (`src/utils/JsonSchemaParser.ts`, `src/utils/SchemaNode.ts`)
 
-`JsonSchemaParser` walks a `JSONSchema7` (plus a `deprecated` flag, which draft-07 lacks) and produces a tree of three node classes: `RootNode`, `PropertyNode`, `ClassNode` (a Scala class in the SDLB schema). Node dispatch everywhere uses the **visitor pattern** (`SchemaVisitor<T>`) — adding a node subclass means updating `SchemaVisitor` and every implementation, which are spread across `D3NodeUtils.ts` (`labelVisitor`, `deprecatedVisitor`), `D3SchemaTree.ts` (`expandOnlyRootNodeVisitor`), `NodeSearch.tsx`, and `DetailsPanelContent.tsx`. Use `toVisitor(fn)` when the behaviour is uniform across node types.
+`JsonSchemaParser` walks a `JSONSchema7` (plus a `deprecated` flag, which draft-07 lacks) and produces a tree of three node classes: `RootNode`, `PropertyNode`, `ClassNode` (a Scala class in the SDLB schema). Node dispatch everywhere uses the **visitor pattern** (`SchemaVisitor<T>`) — adding a node subclass means updating `SchemaVisitor` and every implementation, which are spread across `SchemaNode.ts` (`nameVisitor`), `D3NodeUtils.ts` (`labelVisitor`, `deprecatedVisitor`), `D3SchemaTree.ts` (`expandOnlyRootNodeVisitor`), `NodeSearch.tsx`, and `DetailsPanelContent.tsx`. Use `toVisitor(fn)` when the behaviour is uniform across node types.
 
 The parser deliberately assumes SDLB-schema shape rather than general JSON Schema — comments mark each spot. Notably: `type` is never a union; `items` is never an array; `$ref` targets are merged shallowly with the referring element (`enrichSchemaWithRef`, local element wins); `additionalProperties.oneOf` is treated as a `mapOf`; and a `$ref` under a `Others` definitions section means "no base class". Type details for nodes whose children are `ClassNode`s can only be inferred *after* parsing the children (the common base class, or the single class name).
 
@@ -62,7 +62,9 @@ D3 owns the DOM inside the `<g>` ref, not React. Consequences to respect:
 
 **Linking / deep links** (`src/utils/SchemaSerialization.ts`)
 
-A node is serialized as the array of child indexes from the root, stored in the `path` URL param alongside `schema`. Deliberate behaviour: URL params are only *maintained* if they are already present (a bare URL stays bare and loads the newest schema); `path` is dropped whenever `schema` changes, since indexes are schema-specific.
+A node is serialized as the `/`-joined names of the elements from the root (`nameVisitor`, each segment `encodeURIComponent`-ed), stored in the `path` URL param alongside `schema` — e.g. `dataObjects/HiveTableDataObject/table`. Names are unique among siblings in the schema shape the parser assumes (`properties` keys, class `title`s), and unlike the child indexes used before they are not specific to a schema version, so `path` now survives a change of `schema`.
+
+Deliberate behaviour: URL params are only *maintained* if they are already present (a bare URL stays bare and loads the newest schema). Resolution degrades instead of failing — an element which no longer exists falls back to the closest ancestor which does, and a path whose first element is already unknown selects nothing. Paths of the old format (`[1,2,1]`, recognized by the leading bracket, since encoded names never start with one) are still resolved so that links which are already out there keep working; the URL is then rewritten to the path of names by the next `updatePathInUrlParams`.
 
 **Component composition** — `SchemaViewer.tsx` is the only stateful container: it holds the selected schema name, the parsed tree, the selected node, details-panel visibility, and a `Blob` of the pretty-printed raw schema for `DownloadButton`. The details panel is hidden with `display: none` rather than unmounted, to preserve its state. `SchemaSelector` sorts schema names descending with `localeCompare` so the newest version is preselected.
 
@@ -93,8 +95,9 @@ that describe the fixtures — labels, names, and the serialized `path` paramete
 `tests/e2e/fixture.ts`, so a change of the path format only has to be made there. `openViewer()` waits for
 the tree before interacting: `NodeSearch` is rerendered when the schema arrives and discards earlier input.
 
-The `test.fixme` specs in `element-links.spec.ts` describe how links should behave across schema versions
-and fail today, because a `path` is a list of child indexes.
+`element-links.spec.ts` covers the link behaviour across the two fixture versions: the same path of names
+resolves in both, an element missing from the older one falls back to its ancestor, and paths of the old
+position based format still resolve.
 
 ## Testing changes against the SDLB website
 

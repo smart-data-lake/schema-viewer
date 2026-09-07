@@ -124,6 +124,16 @@ export interface SchemaVisitor<T> {
   visitClassNode(n: ClassNode): T;
 }
 
+/**
+ * The name which identifies a node among its siblings: the property key for properties and the class name
+ * for classes. The root node has no name, because it is where every path starts.
+ */
+export const nameVisitor: SchemaVisitor<string> = {
+  visitClassNode: (n: ClassNode) => n.className,
+  visitPropertyNode: (n: PropertyNode) => n.propertyName,
+  visitRootNode: () => ''
+}
+
 export function toVisitor<T>(fn: (n: SchemaNode) => T): SchemaVisitor<T> {
   return {
     visitClassNode: fn,

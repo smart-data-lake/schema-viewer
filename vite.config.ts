@@ -26,6 +26,7 @@ export default defineConfig(({ command }) => ({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.ts'
+    setupFiles: './src/setupTests.ts',
+    include: ['src/**/*.test.{ts,tsx}'] // the specs in tests/e2e are run by playwright, see playwright.config.ts
   }
 }));

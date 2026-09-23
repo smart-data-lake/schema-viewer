@@ -1,5 +1,5 @@
-import React  from 'react';
-import { Box, Divider, IconButton, styled, Tooltip, Typography } from '@mui/joy';
+import React, { useState } from 'react';
+import { Box, Divider, Dropdown, IconButton, Menu, MenuButton, MenuItem, styled, Tooltip, Typography } from '@mui/joy';
 import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from '../utils/SchemaNode';
 import { Share } from '@mui/icons-material';
 import { deprecatedVisitor } from '../utils/D3NodeUtils';
@@ -8,7 +8,11 @@ import remarkGfm from 'remark-gfm'; // Github flavoured markdown (for hyperlinks
 import './DetailsPanelContent.css';
 
 
-export default function DetailsPanelContent(props: { node: SchemaNode, createNodeUrl: (n: SchemaNode) => string }) {
+export default function DetailsPanelContent(props: {
+  node: SchemaNode,
+  createNodeUrl: (n: SchemaNode) => string,
+  createLatestNodeUrl: (n: SchemaNode) => string
+}) {
   const nodeName = props.node.accept(nodeNameVisitor);
   const nodeType = props.node.accept(nodeTypeVisitor);
   const nodeDescription = props.node.accept(nodeDescriptionVisitor);
@@ -18,7 +22,8 @@ export default function DetailsPanelContent(props: { node: SchemaNode, createNod
     <Box sx={{flex: 1, paddingLeft: 2, paddingRight: 2, overflow: 'auto'}}>
       <Box sx={{display: 'flex', justifyContent: 'space-between', marginTop: 3, alignItems: 'center'}}>
         <Typography level="title-lg" sx={{wordBreak: 'break-word'}}>{nodeName}</Typography>
-        <ShareButton getNodeUrl={() => props.createNodeUrl(props.node)} />
+        <ShareMenu getNodeUrl={() => props.createNodeUrl(props.node)}
+                   getLatestNodeUrl={() => props.createLatestNodeUrl(props.node)} />
       </Box>
       {deprecated && <Typography sx={{fontStyle: 'italic'}}>deprecated</Typography>}
       <SectionDivider />
@@ -49,13 +54,28 @@ const SectionText = (props: { children?: string }) => {
     <Typography level="body-md" sx={{wordBreak: 'break-word', whiteSpace: 'pre-wrap'}}>{props.children}</Typography>);
 }
 
-function ShareButton(props: { getNodeUrl: () => string }) {
+/**
+ * Offers a link to the element in the selected schema version, and one which always refers to the element
+ * in the newest schema version.
+ */
+function ShareMenu(props: { getNodeUrl: () => string, getLatestNodeUrl: () => string }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  // the tooltip is hidden while the menu is open, because it would overlap with the menu
   return (
-    <Tooltip title="Copy link to schema element">
-      <IconButton onClick={() => writeToClipboard(props.getNodeUrl())} variant="plain" size="sm">
-        <Share />
-      </IconButton>
-    </Tooltip>
+    <Dropdown open={menuOpen} onOpenChange={(_, open) => setMenuOpen(open)}>
+      <Tooltip title="Copy link to schema element" open={tooltipOpen && !menuOpen}
+               onOpen={() => setTooltipOpen(true)} onClose={() => setTooltipOpen(false)}>
+        <MenuButton slots={{root: IconButton}} slotProps={{root: {variant: 'plain', size: 'sm'}}}>
+          <Share />
+        </MenuButton>
+      </Tooltip>
+      <Menu placement="bottom-end" size="sm">
+        <MenuItem onClick={() => writeToClipboard(props.getNodeUrl())}>Copy link to this version</MenuItem>
+        <MenuItem onClick={() => writeToClipboard(props.getLatestNodeUrl())}>Copy link to latest version</MenuItem>
+      </Menu>
+    </Dropdown>
   );
 }
 

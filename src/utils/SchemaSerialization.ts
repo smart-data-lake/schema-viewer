@@ -6,6 +6,7 @@ import { nameVisitor, SchemaNode } from './SchemaNode';
  * Per default, there are no url parameters and the newest schema is loaded.
  * If there are according url parameters (see {@link pathUrlParam} and ${@link schemaUrlParam} defined in the
  * url, these will be used and updated as long as they are present in the url.
+ * A path without a schema refers to the element in the newest schema, so such a link follows new versions.
  */
 
 export const pathUrlParam = 'path';
@@ -38,11 +39,15 @@ export function hasPathUrlParam(): boolean {
 export function updatePathInUrlParams(selectedNode: SchemaNode) {
   const urlParams = getUrlParams();
   const lastPath = urlParams.get(pathUrlParam);
-  const newPath = serialize(selectedNode);
+  const newPath = serializeNode(selectedNode);
   if (lastPath !== newPath) {
     urlParams.set(pathUrlParam, newPath);
     window.history.replaceState(null, '', '?' + urlParams.toString());
   }
+}
+
+export function getPathFromUrlParams(): string | null {
+  return getUrlParams().get(pathUrlParam);
 }
 
 export function getNodeFromPathUrlParam(schema: SchemaNode): SchemaNode | undefined {
@@ -50,23 +55,25 @@ export function getNodeFromPathUrlParam(schema: SchemaNode): SchemaNode | undefi
   if (path === null) {
     return undefined;
   }
-  return deserialize(path, schema);
-}
-
-export function deletePathFromUrlParams() {
-  const urlParams = getUrlParams();
-  urlParams.delete(pathUrlParam);
-  window.history.replaceState(null, '', '?' + urlParams.toString());
+  return resolvePath(path, schema);
 }
 
 function getUrlParams(): URLSearchParams {
   return new URLSearchParams(window.location.search);
 }
 
-export function createUrlToNode(node: SchemaNode, schemaName: string): string {
+/**
+ * Creates a link to the node in the given schema. Without a schema name, the link refers to the node in
+ * whatever schema is the newest one when the link is opened.
+ */
+export function createUrlToNode(node: SchemaNode, schemaName?: string): string {
   const url = new URL(window.location.href);
-  url.searchParams.set(schemaUrlParam, schemaName);
-  url.searchParams.set(pathUrlParam, serialize(node));
+  if (schemaName) {
+    url.searchParams.set(schemaUrlParam, schemaName);
+  } else {
+    url.searchParams.delete(schemaUrlParam);
+  }
+  url.searchParams.set(pathUrlParam, serializeNode(node));
   return url.toString();
 }
 
@@ -76,7 +83,7 @@ export function createUrlToNode(node: SchemaNode, schemaName: string): string {
  * versions of the schema. The names are encoded, so that a name containing the separator does not
  * introduce another path element.
  */
-function serialize(node: SchemaNode): string {
+export function serializeNode(node: SchemaNode): string {
   const names = [];
   let ancestor = node;
   while (ancestor.parent) {
@@ -87,10 +94,10 @@ function serialize(node: SchemaNode): string {
 }
 
 /**
- * Finds the node the serialized path refers to. Paths of names as created by {@link serialize} and the
+ * Finds the node the serialized path refers to. Paths of names as created by {@link serializeNode} and the
  * paths of positions which were used before are both understood.
  */
-function deserialize(path: string, schema: SchemaNode): SchemaNode | undefined {
+export function resolvePath(path: string, schema: SchemaNode): SchemaNode | undefined {
   return isPathOfPositions(path)
     ? deserializePathOfPositions(path, schema)
     : deserializePathOfNames(path, schema);

@@ -12,7 +12,7 @@ test('details are shown for property node without type details', () => {
   const description = 'some description';
   const propertyNode = new PropertyNode(0, title, type, false, false, undefined, description);
 
-  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
+  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
 
   expect(screen.getByText(title)).toBeInTheDocument();
   expect(screen.getByText(type)).toBeInTheDocument();
@@ -27,7 +27,7 @@ test('details are shown for property node with type details', () => {
   const description = 'some description';
   const propertyNode = new PropertyNode(0, title, type, false, false, typeDetails, description);
 
-  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} />)
+  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
 
   expect(screen.getByText(title)).toBeInTheDocument();
   expect(screen.getByText(`${type}: ${typeDetails}`)).toBeInTheDocument();
@@ -41,7 +41,7 @@ test('details are shown for class node with base class', () => {
   const description = 'some description';
   const classNode = new ClassNode(0, className, false, description, baseClass);
 
-  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} />)
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
 
   expect(screen.getByText(className)).toBeInTheDocument();
   expect(screen.getByText(`object: ${className} extends ${baseClass}`)).toBeInTheDocument();
@@ -54,7 +54,7 @@ test('details are shown for class node without base class', () => {
   const description = 'some description';
   const classNode = new ClassNode(0, className, false, description);
 
-  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} />)
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
 
   expect(screen.getByText(className)).toBeInTheDocument();
   expect(screen.getByText(`object: ${className}`)).toBeInTheDocument();
@@ -67,7 +67,7 @@ test('deprecated text is shown for deprecated node', () => {
   const description = 'some description';
   const classNode = new ClassNode(0, className, true, description);
 
-  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} />)
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
 
   expect(screen.getByText(className)).toBeInTheDocument();
   expect(screen.getByText(`object: ${className}`)).toBeInTheDocument();
@@ -75,9 +75,11 @@ test('deprecated text is shown for deprecated node', () => {
   expect(screen.getByText(deprecatedText)).toBeInTheDocument();
 })
 
-test('share button copies node url to clipboard', async () => {
+test.each([
+  ['Copy link to this version', 'nodeUrl'],
+  ['Copy link to latest version', 'latestNodeUrl']
+])('share menu item "%s" copies the according url to the clipboard', async (menuItem, expectedUrl) => {
   const propertyNode = new PropertyNode(0, 'testProperty', 'string', false, false, undefined, 'some description');
-  const nodeUrl = 'nodeUrl';
   let clipboard = '';
 
   Object.defineProperty(global.navigator, 'clipboard', {
@@ -90,9 +92,10 @@ test('share button copies node url to clipboard', async () => {
     }
   });
 
-  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => nodeUrl} />)
-  const shareButton = screen.getByRole('button');
-  await userEvent.click(shareButton);
+  render(<DetailsPanelContent node={propertyNode} createNodeUrl={() => 'nodeUrl'}
+                              createLatestNodeUrl={() => 'latestNodeUrl'} />)
+  await userEvent.click(screen.getByRole('button'));
+  await userEvent.click(screen.getByRole('menuitem', {name: menuItem}));
 
-  expect(clipboard).toBe(nodeUrl);
+  expect(clipboard).toBe(expectedUrl);
 });

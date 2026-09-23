@@ -64,9 +64,21 @@ export function graphControlButton(page: Page, control: 'zoomIn' | 'zoomOut' | '
 
 export const shareButton = (page: Page): Locator => page.getByTestId('ShareIcon');
 
+/** copies a link to the element shown in the details panel, see ShareMenu in DetailsPanelContent.tsx */
+export async function copyElementLink(page: Page, version: 'this' | 'latest'): Promise<string> {
+  await shareButton(page).click();
+  await page.getByRole('menuitem', { name: `Copy link to ${version} version` }).click();
+  return page.evaluate(() => navigator.clipboard.readText());
+}
+
 export const detailsPanelToggleButton = (page: Page, currentlyOpen: boolean): Locator =>
   page.getByTestId(currentlyOpen ? 'KeyboardDoubleArrowRightIcon' : 'KeyboardDoubleArrowLeftIcon');
 
 export function elementLink(schemaName: string, pathParam: string): string {
   return `/?schema=${schemaName}&path=${encodeURIComponent(pathParam)}`;
+}
+
+/** a link to the element in whatever schema is the newest one */
+export function latestElementLink(pathParam: string): string {
+  return `/?path=${encodeURIComponent(pathParam)}`;
 }

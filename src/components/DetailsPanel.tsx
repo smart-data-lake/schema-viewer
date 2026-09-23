@@ -4,7 +4,11 @@ import { SchemaNode } from '../utils/SchemaNode';
 import DetailsPanelBorder from './DetailsPanelBorder';
 import DetailsPanelContent from './DetailsPanelContent';
 
-export default function DetailsPanel(props: { node: SchemaNode | null, createNodeUrl: (n: SchemaNode) => string }) {
+export default function DetailsPanel(props: {
+  node: SchemaNode | null,
+  createNodeUrl: (n: SchemaNode) => string,
+  createLatestNodeUrl: (n: SchemaNode) => string
+}) {
   const [detailsPanelWidth, setDetailsPanelWidth] = useState(350);
 
   return (
@@ -17,7 +21,8 @@ export default function DetailsPanel(props: { node: SchemaNode | null, createNod
          }}> {}
       <DetailsPanelBorder setDetailsPanelWidth={setDetailsPanelWidth} />
       {props.node
-        ? <DetailsPanelContent node={props.node} createNodeUrl={props.createNodeUrl} />
+        ? <DetailsPanelContent node={props.node} createNodeUrl={props.createNodeUrl}
+                               createLatestNodeUrl={props.createLatestNodeUrl} />
         : <Typography sx={{margin: 'auto'}}>No node selected.</Typography>
       }
     </Box>

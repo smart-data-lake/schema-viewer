@@ -1,5 +1,12 @@
 import { ClassNode, PropertyNode, RootNode, SchemaNode } from './SchemaNode';
-import { createUrlToNode, getNodeFromPathUrlParam, getSchemaFromUrlParams, pathUrlParam } from './SchemaSerialization';
+import {
+  createUrlToNode,
+  getNodeFromPathUrlParam,
+  getSchemaFromUrlParams,
+  pathUrlParam,
+  resolvePath,
+  serializeNode
+} from './SchemaSerialization';
 import { test, expect } from 'vitest';
 
 test('serializing and deserializing gives the same node', () => {
@@ -27,6 +34,24 @@ test('serializing and deserializing works for root node', () => {
 
   expect(deserializedSchemaName).toBe(schemaName);
   expect(deserializedNode).toBe(root);
+});
+
+test('a url without schema name refers to the node in the newest schema', () => {
+  const schema = createDummySchema();
+  const node = schema.children[1].children[2].children[0];
+  setWindowLocationUrl('http://localhost/?schema=testSchema');
+
+  const nodeUrl = createUrlToNode(node);
+
+  expect(new URL(nodeUrl).searchParams.has('schema')).toBe(false);
+  expect(getPathFromUrl(nodeUrl)).toBe('p2/c3/p3');
+});
+
+test('a serialized node is resolved to the same node', () => {
+  const schema = createDummySchema();
+  const node = schema.children[1].children[2].children[2];
+
+  expect(resolvePath(serializeNode(node), schema)).toBe(node);
 });
 
 test('the path of a node is composed of the names of the elements leading to it', () => {

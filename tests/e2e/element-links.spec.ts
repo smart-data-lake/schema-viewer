@@ -10,9 +10,11 @@ import {
   UNKNOWN_PATH_PARAM
 } from './fixture';
 import {
+  copyElementLink,
   detailsPanel,
   detailsPanelTitle,
   elementLink,
+  latestElementLink,
   nodeLabel,
   openViewer,
   schemaSelector,
@@ -79,13 +81,91 @@ test.describe('links to schema elements', () => {
     await expect(detailsPanel(page)).toBeHidden();
   });
 
-  test('the share button copies a link which opens the same element', async ({ page }) => {
+  test('the share menu copies a link which opens the same element in the same version', async ({ page }) => {
+    await openViewer(page, `/?schema=${OLDER_SCHEMA}`);
+    await searchAndSelect(page, TABLE_ELEMENT.name, TABLE_ELEMENT.searchAncestors);
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+
+    const link = await copyElementLink(page, 'this');
+
+    expect(new URL(link).searchParams.get('schema')).toBe(OLDER_SCHEMA);
+    expect(new URL(link).searchParams.get('path')).toBe(TABLE_ELEMENT.pathParam);
+    await openViewer(page, link);
+    await expect(schemaSelector(page)).toHaveText(OLDER_SCHEMA);
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+  });
+
+  test('the share menu copies a link to the element in the latest version', async ({ page }) => {
+    await openViewer(page, `/?schema=${OLDER_SCHEMA}`);
+    await searchAndSelect(page, TABLE_ELEMENT.name, TABLE_ELEMENT.searchAncestors);
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+
+    const link = await copyElementLink(page, 'latest');
+
+    expect(new URL(link).searchParams.has('schema')).toBe(false);
+    expect(new URL(link).searchParams.get('path')).toBe(TABLE_ELEMENT.pathParam);
+    await openViewer(page, link);
+    await expect(schemaSelector(page)).toHaveText(NEWEST_SCHEMA);
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+  });
+
+  test('the tooltip of the share button is hidden while the share menu is open', async ({ page }) => {
+    await openViewer(page, elementLink(NEWEST_SCHEMA, TABLE_ELEMENT.pathParam));
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+
+    await shareButton(page).hover();
+    await expect(page.getByRole('tooltip', { name: 'Copy link to schema element' })).toBeVisible();
+    await shareButton(page).click();
+
+    await expect(page.getByRole('menuitem', { name: 'Copy link to latest version' })).toBeVisible();
+    await expect(page.getByRole('tooltip', { name: 'Copy link to schema element' })).toBeHidden();
+  });
+
+  test('a link without schema opens the element in the newest schema', async ({ page }) => {
+    await openViewer(page, latestElementLink(TABLE_ELEMENT.pathParam));
+
+    await expect(schemaSelector(page)).toHaveText(NEWEST_SCHEMA);
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+    for (const label of TABLE_ELEMENT.labelsOnPath) {
+      await expect(nodeLabel(page, label)).toBeVisible();
+    }
+    // the link keeps following the newest schema
+    expect(new URL(page.url()).searchParams.has('schema')).toBe(false);
+    expect(new URL(page.url()).searchParams.get('path')).toBe(TABLE_ELEMENT.pathParam);
+  });
+
+  test('the schema is added to a link without schema when another schema is selected', async ({ page }) => {
+    await openViewer(page, latestElementLink(TABLE_ELEMENT.pathParam));
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+
+    await selectSchema(page, OLDER_SCHEMA);
+
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+    await expect(page).toHaveURL(url => url.searchParams.get('schema') === OLDER_SCHEMA
+      && url.searchParams.get('path') === TABLE_ELEMENT.pathParam);
+  });
+
+  test('the selected element is kept when the schema version is changed on a url without parameters', async ({ page }) => {
     await openViewer(page);
     await searchAndSelect(page, TABLE_ELEMENT.name, TABLE_ELEMENT.searchAncestors);
     await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
 
-    await shareButton(page).click();
-    const link = await page.evaluate(() => navigator.clipboard.readText());
+    await selectSchema(page, OLDER_SCHEMA);
+
+    await expect(schemaSelector(page)).toHaveText(OLDER_SCHEMA);
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+    for (const label of TABLE_ELEMENT.labelsOnPath) {
+      await expect(nodeLabel(page, label)).toBeVisible();
+    }
+    expect(new URL(page.url()).search).toBe('');
+  });
+
+  test('the share menu link of the newest schema opens the same element', async ({ page }) => {
+    await openViewer(page);
+    await searchAndSelect(page, TABLE_ELEMENT.name, TABLE_ELEMENT.searchAncestors);
+    await expect(detailsPanelTitle(page, TABLE_ELEMENT.name)).toBeVisible();
+
+    const link = await copyElementLink(page, 'this');
 
     expect(new URL(link).searchParams.get('schema')).toBe(NEWEST_SCHEMA);
     expect(new URL(link).searchParams.get('path')).toBe(TABLE_ELEMENT.pathParam);

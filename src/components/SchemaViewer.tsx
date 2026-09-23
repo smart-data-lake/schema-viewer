@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DetailsPanel from './DetailsPanel';
 import SchemaViewerHeader from './SchemaViewerHeader';
 import SchemaGraph from './SchemaGraph';
@@ -11,10 +11,11 @@ import NodeSearch from './NodeSearch';
 import DetailsPanelToggleButton from './DetailsPanelToggleButton';
 import {
   createUrlToNode,
-  deletePathFromUrlParams,
-  getNodeFromPathUrlParam,
+  getPathFromUrlParams,
   hasPathUrlParam,
   hasSchemaInUrlParams,
+  resolvePath,
+  serializeNode,
   updatePathInUrlParams,
   updateSchemaInUrlParams
 } from '../utils/SchemaSerialization';
@@ -43,8 +44,15 @@ export default function SchemaViewer(props: SchemaViewerProps) {
   const [selectedNode, setSelectedNode] = useState<SchemaNode | null>(null);
   const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
   const [schemaBlob, setSchemaBlob] = useState<Blob | null>(null); // for download
+  // the path of the element to select once the schema is parsed: initially the one from the url, and after
+  // a switch of the schema version the one which was selected before, so that the user stays on the element
+  const pathToRestore = useRef<string | null>(getPathFromUrlParams());
+  const schemaSelectedBefore = useRef(false);
 
   function initSchema(schemaName: string): void {
+    if (selectedNode) {
+      pathToRestore.current = serializeNode(selectedNode);
+    }
     // between loading schemas we set the old schema to null to prevent any confusion between the schemas
     setSelectedNode(null);
     setSchema(null);
@@ -61,11 +69,12 @@ export default function SchemaViewer(props: SchemaViewerProps) {
   useEffect(() => {
     if (selectedSchemaName) {
       initSchema(selectedSchemaName);
-      if (hasSchemaInUrlParams()) {
+      // a path without a schema refers to the newest schema, so the schema is added to the url as soon as
+      // the user chooses another one - but not for the initial selection, which is the newest schema
+      if (hasSchemaInUrlParams() || (hasPathUrlParam() && schemaSelectedBefore.current)) {
         updateSchemaInUrlParams(selectedSchemaName);
-      } else if (hasPathUrlParam()) {
-        deletePathFromUrlParams();
       }
+      schemaSelectedBefore.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSchemaName])
@@ -78,8 +87,9 @@ export default function SchemaViewer(props: SchemaViewerProps) {
   }, [selectedNode]);
 
   useEffect(() => {
-    if (schema && hasPathUrlParam()) {
-      const node = getNodeFromPathUrlParam(schema);
+    if (schema && pathToRestore.current !== null) {
+      const node = resolvePath(pathToRestore.current, schema);
+      pathToRestore.current = null;
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       node && setSelectedNode(node);
     }
@@ -106,7 +116,8 @@ export default function SchemaViewer(props: SchemaViewerProps) {
         {/* we hide the info panel with display: 'none' to keep its state when it is closed */}
         {selectedSchemaName &&
             <Box sx={{display: detailsPanelOpen ? 'block' : 'none'}}>
-                <DetailsPanel node={selectedNode} createNodeUrl={n => createUrlToNode(n, selectedSchemaName)} />
+                <DetailsPanel node={selectedNode} createNodeUrl={n => createUrlToNode(n, selectedSchemaName)}
+                              createLatestNodeUrl={n => createUrlToNode(n)} />
             </Box>
         }
       </Box>

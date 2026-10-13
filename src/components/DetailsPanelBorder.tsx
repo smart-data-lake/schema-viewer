@@ -3,7 +3,8 @@ import { Box } from '@mui/joy';
 
 export default function DetailsPanelBorder(props: { setDetailsPanelWidth: (width: number) => void }) {
 
-  function startDragging() {
+  function startDragging(e: React.MouseEvent) {
+    e.preventDefault(); // otherwise the mouse down starts a text selection, which the drag then extends over the graph and the panel
     document.body.addEventListener('mousemove', moveBorder);
     document.body.addEventListener('mouseup', stopDragging);
   }
@@ -18,7 +19,7 @@ export default function DetailsPanelBorder(props: { setDetailsPanelWidth: (width
   }
 
   return (
-    <Box sx={{
+    <Box data-testid="details-panel-border" sx={{
       borderLeft: 1,
       borderRight: 1,
       borderColor: theme => theme.palette.background.level3,

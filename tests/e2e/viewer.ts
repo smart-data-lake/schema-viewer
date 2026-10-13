@@ -19,6 +19,9 @@ export const nodeCircle = (page: Page, label: string): Locator =>
 
 export const detailsPanel = (page: Page): Locator => page.getByTestId('details-panel');
 
+/** the vertical bar between the graph and the details panel, which resizes the panel when dragged */
+export const detailsPanelBorder = (page: Page): Locator => page.getByTestId('details-panel-border');
+
 /** the name of the element the details panel currently shows */
 export const detailsPanelTitle = (page: Page, name: string): Locator =>
   detailsPanel(page).getByText(name, { exact: true });

@@ -16,9 +16,9 @@ export default function DetailsPanel(props: {
          sx={{display: 'flex', height: '100%', background: theme => theme.palette.background.body}}
          style={{
            width: detailsPanelWidth, /* dynamic styles should be defined in style and not sx */
-           maxWidth: document.body.clientWidth - 960, /* maxWidth is chosen so that no horizontal scroll bar appears on maxWidth */
-           minWidth: 200
-         }}> {}
+           minWidth: 200,
+           flexShrink: 1 /* when dragged wider than there is room next to the graph, the panel shrinks instead of the page overflowing */
+         }}>
       <DetailsPanelBorder setDetailsPanelWidth={setDetailsPanelWidth} />
       {props.node
         ? <DetailsPanelContent node={props.node} createNodeUrl={props.createNodeUrl}

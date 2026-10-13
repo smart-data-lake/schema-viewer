@@ -113,9 +113,10 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             <SchemaGraph schema={schema} setSelectedNode={setSelectedNode} selectedNode={selectedNode} />
           </Box>
         </Box>
-        {/* we hide the info panel with display: 'none' to keep its state when it is closed */}
+        {/* we hide the info panel with display: 'none' to keep its state when it is closed.
+            minWidth: 0 lets it shrink below the width it was dragged to, the graph side keeps the width its header needs */}
         {selectedSchemaName &&
-            <Box sx={{display: detailsPanelOpen ? 'block' : 'none'}}>
+            <Box sx={{display: detailsPanelOpen ? 'flex' : 'none', minWidth: 0}}>
                 <DetailsPanel node={selectedNode} createNodeUrl={n => createUrlToNode(n, selectedSchemaName)}
                               createLatestNodeUrl={n => createUrlToNode(n)} />
             </Box>

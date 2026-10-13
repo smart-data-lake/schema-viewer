@@ -83,6 +83,7 @@
   },
   "scripts": {
     "start": "vite --force",
+    "start:local": "SCHEMAS_DIR=./schemas vite --force",
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",

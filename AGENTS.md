@@ -15,6 +15,8 @@ Node 24+ and yarn are required.
 ```bash
 yarn install                       # yarn install --frozen-lockfile in CI
 yarn start                         # vite dev server on http://localhost:5173
+yarn start:local                   # same, serving the *.json in ./schemas (git-ignored) instead of smartdatalake.ch
+SCHEMAS_DIR=~/schemas yarn start   # same, with any other local folder
 yarn build                         # library build into dist/
 yarn test                          # vitest run (single pass), unit tests in src only
 yarn test:watch

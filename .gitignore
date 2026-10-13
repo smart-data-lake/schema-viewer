@@ -23,3 +23,6 @@ npm-debug.log*
 /playwright-report
 /blob-report
 /playwright/.cache
+
+# local schemas for `yarn start:local`
+/schemas

@@ -14,6 +14,7 @@ import {
   detailsPanelTitle,
   detailsPanelToggleButton,
   graphControlButton,
+  header,
   nodeCircle,
   nodeLabel,
   openViewer,
@@ -132,6 +133,16 @@ test.describe('schema graph', () => {
     await graphControlButton(page, 'legend').click();
 
     await expect(page.getByText('Legend')).toBeVisible();
+  });
+
+  test('places the graph controls as far from the top of the graph as from its left, with the legend beside them', async ({ page }) => {
+    await openViewer(page);
+    await graphControlButton(page, 'legend').click();
+
+    const zoomIn = (await graphControlButton(page, 'zoomIn').locator('xpath=..').boundingBox())!;
+    const graphTop = (await header(page).boundingBox())!.height;
+    expect(Math.round(zoomIn.y - graphTop)).toBe(Math.round(zoomIn.x));
+    expect((await page.getByText('Legend').locator('xpath=..').boundingBox())!.y).toBeCloseTo(zoomIn.y, 0);
   });
 
   test('another schema version can be selected', async ({ page }) => {

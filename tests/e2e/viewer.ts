@@ -19,9 +19,15 @@ export const nodeCircle = (page: Page, label: string): Locator =>
 
 export const detailsPanel = (page: Page): Locator => page.getByTestId('details-panel');
 
+/** the vertical bar between the graph and the details panel, which resizes the panel when dragged */
+export const detailsPanelBorder = (page: Page): Locator => page.getByTestId('details-panel-border');
+
 /** the name of the element the details panel currently shows */
 export const detailsPanelTitle = (page: Page, name: string): Locator =>
   detailsPanel(page).getByText(name, { exact: true });
+
+/** the bar above the graph with the schema dropdown, the search and the buttons */
+export const header = (page: Page): Locator => page.getByTestId('schema-viewer-header');
 
 /** the schema dropdown, which is a button and not the only combobox in the header */
 export const schemaSelector = (page: Page): Locator => page.locator('button[role="combobox"]');

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import DetailsPanel from './DetailsPanel';
-import SchemaViewerHeader from './SchemaViewerHeader';
+import SchemaViewerHeader, { headerSpacing } from './SchemaViewerHeader';
 import SchemaGraph from './SchemaGraph';
 import { Box, CssVarsProvider } from '@mui/joy';
 import JsonSchemaParser, { JSONSchema } from '../utils/JsonSchemaParser';
@@ -103,7 +103,7 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             <SchemaSelector loadSchemaNames={props.loadSchemaNames} selectedSchemaName={selectedSchemaName}
                             setSelectedSchemaName={setSelectedSchemaName} />
             <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
-            <Box sx={{ marginLeft: 'auto', display: 'flex' }}>
+            <Box sx={{ marginLeft: 'auto', display: 'flex', gap: headerSpacing }}>
               <HelpButton />
               <DownloadButton toDownload={schemaBlob} fileName={selectedSchemaName} />
               <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />
@@ -113,9 +113,10 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             <SchemaGraph schema={schema} setSelectedNode={setSelectedNode} selectedNode={selectedNode} />
           </Box>
         </Box>
-        {/* we hide the info panel with display: 'none' to keep its state when it is closed */}
+        {/* we hide the info panel with display: 'none' to keep its state when it is closed.
+            minWidth: 0 lets it shrink below the width it was dragged to, the graph side keeps the width its header needs */}
         {selectedSchemaName &&
-            <Box sx={{display: detailsPanelOpen ? 'block' : 'none'}}>
+            <Box sx={{display: detailsPanelOpen ? 'flex' : 'none', minWidth: 0}}>
                 <DetailsPanel node={selectedNode} createNodeUrl={n => createUrlToNode(n, selectedSchemaName)}
                               createLatestNodeUrl={n => createUrlToNode(n)} />
             </Box>

@@ -41,7 +41,7 @@ export default function GraphLegend(props: { colors: SchemaTreeColors }) {
     <Box sx={{
       position: 'absolute',
       padding: 2,
-      marginTop: 5,
+      marginTop: 1,
       marginLeft: 10,
       borderRadius: 'md',
       border: '1px solid',

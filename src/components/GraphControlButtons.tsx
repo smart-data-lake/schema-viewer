@@ -15,7 +15,7 @@ export default function GraphControlButtons(props: {
   }
 
   return (
-    <Box sx={{display: 'flex', flexDirection: 'column', position: 'absolute', marginTop: 5, marginLeft: 1}}>
+    <Box sx={{display: 'flex', flexDirection: 'column', position: 'absolute', marginTop: 1, marginLeft: 1}}>
       {props.zoom &&
           <>
               <RoundIconButton onClick={() => props.zoom.zoomIn()}>
@@ -37,5 +37,5 @@ export default function GraphControlButtons(props: {
 }
 
 const RoundIconButton = (props: { onClick?: () => void, children: React.ReactElement }) => {
-  return (<IconButton onClick={props.onClick} variant="outlined" sx={{borderRadius: 20}}>{props.children}</IconButton>);
+  return (<IconButton onClick={props.onClick} variant="plain" sx={{borderRadius: 20}}>{props.children}</IconButton>);
 }

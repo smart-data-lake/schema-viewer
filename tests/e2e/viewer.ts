@@ -26,6 +26,9 @@ export const detailsPanelBorder = (page: Page): Locator => page.getByTestId('det
 export const detailsPanelTitle = (page: Page, name: string): Locator =>
   detailsPanel(page).getByText(name, { exact: true });
 
+/** the bar above the graph with the schema dropdown, the search and the buttons */
+export const header = (page: Page): Locator => page.getByTestId('schema-viewer-header');
+
 /** the schema dropdown, which is a button and not the only combobox in the header */
 export const schemaSelector = (page: Page): Locator => page.locator('button[role="combobox"]');
 

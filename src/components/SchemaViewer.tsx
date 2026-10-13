@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import DetailsPanel from './DetailsPanel';
-import SchemaViewerHeader from './SchemaViewerHeader';
+import SchemaViewerHeader, { headerSpacing } from './SchemaViewerHeader';
 import SchemaGraph from './SchemaGraph';
 import { Box, CssVarsProvider } from '@mui/joy';
 import JsonSchemaParser, { JSONSchema } from '../utils/JsonSchemaParser';
@@ -103,7 +103,7 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             <SchemaSelector loadSchemaNames={props.loadSchemaNames} selectedSchemaName={selectedSchemaName}
                             setSelectedSchemaName={setSelectedSchemaName} />
             <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
-            <Box sx={{ marginLeft: 'auto', display: 'flex' }}>
+            <Box sx={{ marginLeft: 'auto', display: 'flex', gap: headerSpacing }}>
               <HelpButton />
               <DownloadButton toDownload={schemaBlob} fileName={selectedSchemaName} />
               <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />

@@ -7,7 +7,7 @@ export default function DetailsPanelToggleButton(props: { detailsPanelOpen: bool
   return (
     <IconButton onClick={() => props.setDetailsPanelOpen(!props.detailsPanelOpen)}
                 size={headerButtonSize}
-                sx={{...headerButtonStyle, marginRight: 2}}>
+                sx={headerButtonStyle}>
       {props.detailsPanelOpen ? <KeyboardDoubleArrowRight /> : <KeyboardDoubleArrowLeft />}
     </IconButton>
   );

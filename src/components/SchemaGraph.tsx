@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './SchemaGraph.css';
 import { SchemaNode } from '../utils/SchemaNode';
 import { Box, Theme, useTheme } from '@mui/joy';
 import D3SchemaTree from '../utils/D3SchemaTree';

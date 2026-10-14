@@ -42,6 +42,8 @@ Everything the component needs at runtime lives in **`peerDependencies`** and is
 
 `tsconfig.json` aliases `@mui/material` → `@mui/joy`. Styling is Joy UI; MUI Material components are not used directly.
 
+**Do not import `.css` files in library code.** In library mode Vite extracts them into a separate `dist/assets/*.css` which `dist/main.js` does not reference, so the styles silently go missing in consumers (e.g. the SDLB Docusaurus site), while the dev harness and the e2e tests — both on the dev server, which injects CSS — still look fine. Use Joy `styled`/`sx` instead; the styles of the d3-rendered nodes (`.node`, `.selected`) live in `StyledSvg.tsx`. After `yarn build`, `dist/` should contain only `main.js` and `main.d.ts`.
+
 ## Architecture
 
 Rendering is a two-stage pipeline, and the boundary between them matters:

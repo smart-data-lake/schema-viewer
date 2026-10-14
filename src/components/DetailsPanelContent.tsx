@@ -5,7 +5,6 @@ import { Share } from '@mui/icons-material';
 import { deprecatedVisitor } from '../utils/D3NodeUtils';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm'; // Github flavoured markdown (for hyperlinks)
-import './DetailsPanelContent.css';
 
 
 export default function DetailsPanelContent(props: {
@@ -31,7 +30,7 @@ export default function DetailsPanelContent(props: {
       <SectionText>{nodeType}</SectionText>
       <SectionDivider />
       <SectionTitle>Definition</SectionTitle>
-      <Typography component={'div'} level="body-md" className="markdown-container">
+      <Typography component={'div'} level="body-md" sx={markdownStyles}>
         <Markdown remarkPlugins={[remarkGfm]}>
           {nodeDescription ? nodeDescription : 'No description provided.'}
         </Markdown>
@@ -104,3 +103,22 @@ const nodeDescriptionVisitor: SchemaVisitor<string | undefined> = {
   visitPropertyNode: (n: PropertyNode) => n.description,
   visitRootNode: () => ''
 }
+
+// defined here rather than in a css file, because a library build extracts css files into a separate asset
+const markdownStyles = {
+  // inline code
+  '& code': {
+    backgroundColor: '#f5f5f5',
+    fontFamily: "'Courier New', Courier, monospace",
+    padding: '2px 4px',
+    borderRadius: '4px'
+  },
+  // multiline code blocks
+  '& pre code': {
+    display: 'block',
+    padding: '1em',
+    backgroundColor: '#f0f0f0',
+    borderRadius: '6px',
+    overflowX: 'auto'
+  }
+};

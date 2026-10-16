@@ -103,7 +103,8 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             <SchemaSelector loadSchemaNames={props.loadSchemaNames} selectedSchemaName={selectedSchemaName}
                             setSelectedSchemaName={setSelectedSchemaName} />
             <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
-            <Box sx={{ marginLeft: 'auto', display: 'flex', gap: headerSpacing }}>
+            {/* no auto margin here: the free space is split by the auto margins of the search, which centers it */}
+            <Box sx={{ display: 'flex', gap: headerSpacing }}>
               <HelpButton />
               <DownloadButton toDownload={schemaBlob} fileName={selectedSchemaName} />
               <DetailsPanelToggleButton detailsPanelOpen={detailsPanelOpen} setDetailsPanelOpen={setDetailsPanelOpen} />

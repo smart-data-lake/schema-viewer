@@ -16,7 +16,26 @@ function headerGaps(page: Page): Promise<number[]> {
   });
 }
 
+/** the horizontal gaps left and right of the search field, up to the next element on either side */
+function gapsAroundSearch(page: Page): Promise<[number, number]> {
+  return header(page).evaluate(h => {
+    const children = [...h.children];
+    const searchIndex = children.findIndex(c => c.querySelector('input[placeholder="Search"]'));
+    const buttonGroup = children[children.length - 1];
+    const [before, search, after] = [children[searchIndex - 1], children[searchIndex], buttonGroup.children[0]]
+      .map(e => e.getBoundingClientRect());
+    return [Math.round(search.left - before.right), Math.round(after.left - search.right)];
+  });
+}
+
 test.describe('header', () => {
+  test('centers the search between the elements on its left and right', async ({ page }) => {
+    await openViewer(page);
+    const [left, right] = await gapsAroundSearch(page);
+    expect(left).toBeGreaterThan(0);
+    expect(left).toBe(right);
+  });
+
   test('has the same margin at both ends and the same gap between all elements', async ({ page }) => {
     await openViewer(page);
     const [first, , , betweenButtons, betweenButtons2, last] = await headerGaps(page);

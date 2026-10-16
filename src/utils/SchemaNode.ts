@@ -5,6 +5,8 @@ export abstract class SchemaNode {
   readonly id: number;
   children: SchemaNode[] = [];
   showChildren: boolean = false;
+  /** whether the node is hidden by a filter, which hides its subtree as well */
+  hidden: boolean = false;
   parent?: SchemaNode;
 
   protected constructor(id: number) {
@@ -23,10 +25,17 @@ export abstract class SchemaNode {
   }
 
   /**
+   * @returns the children which are not hidden by a filter, regardless of whether this node is expanded
+   */
+  get unhiddenChildren(): SchemaNode[] {
+    return this.children.filter(c => !c.hidden);
+  }
+
+  /**
    * @returns the children which should be visible when this node is visible
    */
   get visibleChildren(): SchemaNode[] {
-    return this.showChildren ? this.children : [];
+    return this.showChildren ? this.unhiddenChildren : [];
   }
 
   traverse(visitor: SchemaVisitor<void>) {
@@ -94,6 +103,21 @@ export class PropertyNode extends SchemaNode {
 }
 
 /**
+ * The SubFeed types (engines) an Action or DataObject supports, as simple class names like 'SparkSubFeed'.
+ * DataObjects list them separately for reading and writing.
+ */
+export type SubFeedTypes =
+  | { kind: 'Action', types: string[] }
+  | { kind: 'DataObject', read: string[], write: string[] };
+
+/**
+ * @returns all SubFeed types listed in subFeedTypes, for DataObjects both those for reading and for writing
+ */
+export function allSubFeedTypes(subFeedTypes: SubFeedTypes): string[] {
+  return subFeedTypes.kind === 'Action' ? subFeedTypes.types : [...subFeedTypes.read, ...subFeedTypes.write];
+}
+
+/**
  * A node which corresponds to a Scala class.
  */
 export class ClassNode extends SchemaNode {
@@ -101,13 +125,17 @@ export class ClassNode extends SchemaNode {
   readonly deprecated: boolean;
   readonly baseClass?: string;
   readonly description?: string;
+  /** undefined if the class is no Action or DataObject, or if the schema version does not list SubFeed types */
+  readonly subFeedTypes?: SubFeedTypes;
 
-  constructor(id: number, className: string, deprecated: boolean, description?: string, baseClass?: string) {
+  constructor(id: number, className: string, deprecated: boolean, description?: string, baseClass?: string,
+              subFeedTypes?: SubFeedTypes) {
     super(id);
     this.className = className;
     this.deprecated = deprecated;
     this.baseClass = baseClass;
     this.description = description;
+    this.subFeedTypes = subFeedTypes;
   }
 
   accept<T>(visitor: SchemaVisitor<T>): T {

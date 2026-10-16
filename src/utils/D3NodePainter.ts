@@ -69,7 +69,7 @@ export default class D3NodePainter {
   }
 
   private getCircleFillColor(node: HierarchyPointNode<SchemaNode>): string {
-    return node.data.children.length > 0 && node.data.visibleChildren.length === 0
+    return node.data.unhiddenChildren.length > 0 && node.data.visibleChildren.length === 0
       ? this.colors.collapsedCircleColor
       : this.colors.expandedCircleColor;
   }

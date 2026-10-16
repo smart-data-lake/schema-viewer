@@ -54,11 +54,14 @@ Rendering is a two-stage pipeline, and the boundary between them matters:
 
 The parser deliberately assumes SDLB-schema shape rather than general JSON Schema — comments mark each spot. Notably: `type` is never a union; `items` is never an array; `$ref` targets are merged shallowly with the referring element (`enrichSchemaWithRef`, local element wins); `additionalProperties.oneOf` is treated as a `mapOf`; and a `$ref` under a `Others` definitions section means "no base class". Type details for nodes whose children are `ClassNode`s can only be inferred *after* parsing the children (the common base class, or the single class name).
 
+Custom (non JSON schema) keywords are prefixed with `x-` since smart-data-lake/smart-data-lake#1181; read them through `getCustomKeyword`, which falls back to the unprefixed name of older schema versions. The SubFeed types of Actions and DataObjects (`x-subFeedTypes`, `x-readSubFeedTypes`, `x-writeSubFeedTypes`) end up in `ClassNode.subFeedTypes`. The export omits a keyword whose list is empty, so whether a missing keyword means "none" or "unknown" is decided for the whole schema: `subFeedTypes` is `undefined` only if no definition lists any. `ScalaSubFeed` and `ParameterSubFeed` are dropped while parsing (`ignoredSubFeedTypes`), so they are neither shown nor offered in the filter.
+
 **2. `SchemaNode` tree → SVG** (`src/utils/D3SchemaTree.ts`, `D3NodePainter.ts`, `D3LinkPainter.ts`, `D3Zoom.ts`)
 
 D3 owns the DOM inside the `<g>` ref, not React. Consequences to respect:
 
 - **Expand/collapse state is mutable state on the `SchemaNode` objects** (`showChildren`), not React state. `D3SchemaTree` mutates it and calls `drawTree()`; React is not involved. Collapsing resets the whole subtree.
+- The SubFeed type filter is a `NodeFilter` predicate held by `SchemaViewer` (`SubFeedTypeFilter.ts`). `D3SchemaTree.filterNodes` copies it into the mutable `hidden` flag, which `visibleChildren`/`unhiddenChildren` respect; the search and the selection fallback (`closestVisibleNode`) call the predicate itself rather than reading the flag, which is only set once the graph's effect has run. Elements with unknown SubFeed types are never hidden, and the dropdown is not rendered for a schema without SubFeed types; the selection is kept for the next version which has them.
 - After `drawTree()`, previously held `HierarchyPointNode` references are stale — re-look them up via `findNodeBySchemaNode` (which queries the DOM by `node-<id>`).
 - The tree is **horizontal**, achieved by swapping x/y coordinates everywhere through `swap()` / `getCoordinates()` / `setCoordinates()` in `D3NodeUtils.ts`. Never touch `node.x`/`node.y` directly.
 - Layout size is computed in two iterations (`adaptTreeLayoutSize`): a first pass measures the minimum vertical node distance, then the height is corrected. Horizontal level spacing is derived from the longest visible label per level.

@@ -1,4 +1,4 @@
-import { RootNode, ClassNode, PropertyNode, SchemaType, SchemaNode } from './SchemaNode';
+import { RootNode, ClassNode, PropertyNode, SchemaType, SchemaNode, SubFeedTypes } from './SchemaNode';
 import { JSONSchema7 } from 'json-schema';
 
 export type JSONSchema = JSONSchema7 & CanBeDeprecated;
@@ -10,16 +10,46 @@ type CanBeDeprecated = {
 // types which are used when a class can be chosen from a list of classes
 const classSelectionTypes: SchemaType[] = ['anyOf', 'allOf', 'oneOf'];
 
+// the custom keywords listing the SubFeed types of Actions and DataObjects
+const subFeedTypeKeywords = ['subFeedTypes', 'readSubFeedTypes', 'writeSubFeedTypes'];
+
+// SubFeed types which the viewer leaves out, neither showing them nor offering them in the filter
+const ignoredSubFeedTypes = ['ScalaSubFeed', 'ParameterSubFeed'];
+
+/**
+ * Looks up a custom (non JSON schema) keyword. Newer schema versions prefix custom keywords with 'x-',
+ * so the prefixed name is looked up first and the unprefixed one is the fallback for older versions,
+ * e.g. 'x-version' and then 'version'.
+ */
+export function getCustomKeyword(schemaElement: JSONSchema, keyword: string): unknown {
+  const element = schemaElement as Record<string, unknown>;
+  return element[`x-${keyword}`] ?? element[keyword];
+}
+
 /**
  * For constructing a {@link SchemaNode} tree from a JSON schema.
  */
 export default class JsonSchemaParser {
   private readonly fullSchema: JSONSchema
   private readonly idGenerator: NodeIdGenerator;
+  private readonly listsSubFeedTypes: boolean;
 
   constructor(schema: JSONSchema) {
     this.fullSchema = schema;
     this.idGenerator = new NodeIdGenerator();
+    this.listsSubFeedTypes = this.hasDefinitionWithSubFeedTypes();
+  }
+
+  /**
+   * Older schema versions do not list the SubFeed types at all, while newer ones omit a keyword if its list is
+   * empty. Whether a missing keyword means 'none' or 'unknown' can therefore only be told from the whole schema.
+   */
+  private hasDefinitionWithSubFeedTypes(): boolean {
+    // our definitions section is grouped by base class, which is not compatible with the JSONSchema typing
+    const definitionSections = Object.values(this.fullSchema.definitions ?? {}) as Record<string, JSONSchema>[];
+    return definitionSections
+      .flatMap(section => Object.values(section))
+      .some(definition => subFeedTypeKeywords.some(k => getCustomKeyword(definition, k) !== undefined));
   }
 
   /**
@@ -217,10 +247,27 @@ export default class JsonSchemaParser {
     if (!enrichedSchema.title) throw new Error(`Class schema found without title: ${JSON.stringify(enrichedSchema)}`);
     const deprecated = this.isDeprecated(enrichedSchema);
     const classNode = new ClassNode(this.idGenerator.generateId(), enrichedSchema.title, deprecated,
-      enrichedSchema.description, baseClass);
+      enrichedSchema.description, baseClass, this.parseSubFeedTypes(enrichedSchema, baseClass));
     const propertyNodes = this.parseProperties(enrichedSchema);
     propertyNodes.forEach(p => classNode.addChild(p));
     return classNode;
+  }
+
+  private parseSubFeedTypes(classSchema: JSONSchema, baseClass?: string): SubFeedTypes | undefined {
+    if (!this.listsSubFeedTypes) {
+      return undefined;
+    }
+    // a keyword is omitted if its list is empty, e.g. for a DataObject which cannot be written
+    const getTypes = (keyword: string) => ((getCustomKeyword(classSchema, keyword) as string[] | undefined) ?? [])
+      .filter(t => !ignoredSubFeedTypes.includes(t));
+    switch (baseClass) {
+      case 'Action':
+        return {kind: 'Action', types: getTypes('subFeedTypes')};
+      case 'DataObject':
+        return {kind: 'DataObject', read: getTypes('readSubFeedTypes'), write: getTypes('writeSubFeedTypes')};
+      default:
+        return undefined;
+    }
   }
 
   private extractBaseClassFromRef(ref: string): string | undefined {

@@ -1,5 +1,7 @@
-import JsonSchemaParser, { JSONSchema } from './JsonSchemaParser';
+import JsonSchemaParser, { getCustomKeyword, JSONSchema } from './JsonSchemaParser';
 import { ClassNode, PropertyNode } from './SchemaNode';
+import { resolvePath } from './SchemaSerialization';
+import exampleSchema from '../example-schema.json';
 import { test, expect } from 'vitest';
 
 test('fields of properties are parsed', () => {
@@ -599,4 +601,59 @@ test('properties inside class node are parsed', () => {
   const propertyInClassNode = classNode.children[0] as PropertyNode;
   expect(classNode.className).toBe('ClassName');
   expect(propertyInClassNode.propertyName).toBe('classProperty');
+});
+
+describe('SubFeed types', () => {
+  function parseClass(schema: JSONSchema, ...path: string[]): ClassNode {
+    return resolvePath(path.join('/'), new JsonSchemaParser(schema).parseSchema()) as ClassNode;
+  }
+
+  test('are parsed for Actions, without the ignored Scala and Parameter SubFeed types', () => {
+    // CopyAction lists ScalaSubFeed and SnowflakeTableDataObject lists ParameterSubFeed in the example schema
+    const action = parseClass(exampleSchema as JSONSchema, 'actions', 'CopyAction');
+    expect(action.subFeedTypes).toEqual({kind: 'Action', types: ['SnowparkSubFeed', 'SparkConnectSubFeed', 'SparkSubFeed']});
+  });
+
+  test('are parsed separately for reading and writing DataObjects, without the ignored ones', () => {
+    const dataObject = parseClass(exampleSchema as JSONSchema, 'dataObjects', 'SnowflakeTableDataObject');
+    expect(dataObject.subFeedTypes).toEqual({kind: 'DataObject', read: ['SnowparkSubFeed', 'SparkSubFeed'], write: ['SnowparkSubFeed', 'SparkSubFeed']});
+  });
+
+  test('are empty if only ignored SubFeed types are listed', () => {
+    const action = parseClass(exampleSchema as JSONSchema, 'actions', 'CustomScriptAction');
+    expect(action.subFeedTypes).toEqual({kind: 'Action', types: []});
+  });
+
+  test('are empty if their keyword is omitted in a schema which lists SubFeed types', () => {
+    // AccessTableDataObject cannot be written, so x-writeSubFeedTypes is omitted
+    const dataObject = parseClass(exampleSchema as JSONSchema, 'dataObjects', 'AccessTableDataObject');
+    expect(dataObject.subFeedTypes).toEqual({kind: 'DataObject', read: ['SparkSubFeed'], write: []});
+  });
+
+  test('are undefined in a schema which does not list SubFeed types', () => {
+    const olderSchema = JSON.parse(JSON.stringify(exampleSchema).replace(/"x-(read|write)?[sS]ubFeedTypes":\[[^\]]*\],?/g, ''));
+    expect(JSON.stringify(olderSchema)).not.toContain('SubFeedTypes');
+
+    expect(parseClass(olderSchema, 'actions', 'CopyAction').subFeedTypes).toBeUndefined();
+    expect(parseClass(olderSchema, 'dataObjects', 'HiveTableDataObject').subFeedTypes).toBeUndefined();
+  });
+
+  test('are undefined for classes which are no Actions or DataObjects', () => {
+    const connection = parseClass(exampleSchema as JSONSchema, 'connections', 'HiveTableConnection');
+    expect(connection.subFeedTypes).toBeUndefined();
+  });
+});
+
+describe('custom keywords', () => {
+  test('are looked up with the x- prefix first', () => {
+    expect(getCustomKeyword({'x-version': '2.0.0', version: '1.0.0'} as JSONSchema, 'version')).toBe('2.0.0');
+  });
+
+  test('fall back to the unprefixed name of older schema versions', () => {
+    expect(getCustomKeyword({version: '1.0.0'} as JSONSchema, 'version')).toBe('1.0.0');
+  });
+
+  test('are undefined if missing', () => {
+    expect(getCustomKeyword({}, 'version')).toBeUndefined();
+  });
 });

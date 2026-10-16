@@ -99,3 +99,35 @@ test.each([
 
   expect(clipboard).toBe(expectedUrl);
 });
+
+test('SubFeed types of an Action are shown with short labels', () => {
+  const classNode = new ClassNode(0, 'CopyAction', false, undefined, 'Action',
+    {kind: 'Action', types: ['SparkConnectSubFeed', 'SparkSubFeed']});
+
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
+
+  expect(screen.getByText('Engines')).toBeInTheDocument();
+  expect(screen.getByText('SparkConnect')).toBeInTheDocument();
+  expect(screen.getByText('Spark')).toBeInTheDocument();
+  expect(screen.queryByText('Read')).not.toBeInTheDocument();
+});
+
+test('SubFeed types of a DataObject are shown separately for reading and writing', () => {
+  const classNode = new ClassNode(0, 'AccessTableDataObject', false, undefined, 'DataObject',
+    {kind: 'DataObject', read: ['SparkSubFeed'], write: []});
+
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
+
+  expect(screen.getByText('Read')).toBeInTheDocument();
+  expect(screen.getByText('Spark')).toBeInTheDocument();
+  expect(screen.getByText('Write')).toBeInTheDocument();
+  expect(screen.getByText('none')).toBeInTheDocument();
+});
+
+test('no SubFeed types are shown if they are unknown', () => {
+  const classNode = new ClassNode(0, 'TestClass', false, undefined, 'DataObject');
+
+  render(<DetailsPanelContent node={classNode} createNodeUrl={() => ''} createLatestNodeUrl={() => ''} />)
+
+  expect(screen.queryByText('Engines')).not.toBeInTheDocument();
+});

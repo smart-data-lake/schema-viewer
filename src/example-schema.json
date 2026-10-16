@@ -1,7 +1,7 @@
 {
   "type" : "object",
   "$schema" : "http://json-schema.org/draft-07/schema#",
-  "version" : "2.5.1-SNAPSHOT",
+  "x-version" : "2.5.1-SNAPSHOT",
   "id" : "sdl-schema-2.5.1-SNAPSHOT.json#",
   "definitions" : {
     "ExecutionMode" : {
@@ -815,6 +815,7 @@
     },
     "DataObject" : {
       "AccessTableDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -840,6 +841,7 @@
         "description" : "[[DataObject]]of type JDBC / Access.\nProvides access to a Access DB to an Action. The functionality is handled seperately from[[JdbcTableDataObject]] \nto avoid problems with net.ucanaccess.jdbc.UcanaccessDriver"
       },
       "ActionsExporterDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -858,6 +860,7 @@
         "description" : "Exports a util[[DataFrame]]that contains properties and metadata extracted from all[[io.smartdatalake.workflow.action.Action]]s\nthat are registered in the current[[InstanceRegistry]].\n\nAlternatively, it can export the properties and metadata of all[[io.smartdatalake.workflow.action.Action]]s defined in config files. For this, the\nconfiguration \\\"config\\\" has to be set to the location of the config.\n\nExample:\n\n```\ndataObjects = {\n...\nactions-exporter {\ntype = ActionsExporterDataObject\nconfig = path/to/myconfiguration.conf\n}\n...\n}\n```\n\n\nThe config value can point to a configuration file or a directory containing configuration files.\n\nSEE: Refer to[[ConfigLoader.loadConfigFromFilesystem()]] for details about the configuration loading."
       },
       "AirbyteDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -901,6 +904,8 @@
         "description" : "Limitations: Connectors have only access to locally mounted directories"
       },
       "AvroFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -1036,6 +1041,8 @@
         "description" : "A[[io.smartdatalake.workflow.dataobject.DataObject]]backed by an Avro data source.\n\nIt manages read and write access and configurations required for[[io.smartdatalake.workflow.action.Action]]s to\nwork on Avro formatted files.\n\nReading and writing details are delegated to Apache Spark[[org.apache.spark.sql.DataFrameReader]]\nand[[org.apache.spark.sql.DataFrameWriter]]respectively. The reader and writer implementations are provided by\nthe[[https://github.com/databricks/spark-avro databricks spark-avro]] project.\n\nSEE: [[org.apache.spark.sql.DataFrameReader]]\n\nSEE: [[org.apache.spark.sql.DataFrameWriter]]"
       },
       "CsvFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -1176,6 +1183,7 @@
         "description" : "A[[DataObject]]backed by a comma-separated value (CSV) data source.\n\nIt manages read and write access and configurations required for[[io.smartdatalake.workflow.action.Action]]s to\nwork on CSV formatted files.\n\nCSV reading and writing details are delegated to Apache Spark[[org.apache.spark.sql.DataFrameReader]]\nand[[org.apache.spark.sql.DataFrameWriter]]respectively.\n\nRead Schema specifications:\n\nIf a data object schema is not defined via the`schema`attribute (default) and`inferSchema`option is\ndisabled (default) in`csvOptions`, then all column types are set to String and the first row of the CSV file is read\nto determine the column names and the number of fields.\n\nIf the`header`option is disabled (default) in`csvOptions`, then the header is defined as \\\"_c#\\\" for each column\nwhere \\\"#\\\" is the column index.\nOtherwise the first row of the CSV file is not included in the DataFrame content and its entries\nare used as the column names for the schema.\n\nIf a data object schema is not defined via the`schema`attribute and`inferSchema`is enabled in`csvOptions`, then\nthe`samplingRatio`(default: 1.0) option in`csvOptions` is used to extract a sample from the CSV file in order to\ndetermine the input schema automatically.\n\nNOTE: This data object sets the following default values for`csvOptions`: delimiter = \\\"|\\\", quote = null, header = false, and inferSchema = false.\nAll other`csvOption` default to the values defined by Apache Spark.\n\nSEE: [[org.apache.spark.sql.DataFrameReader]]\n\nSEE: [[org.apache.spark.sql.DataFrameWriter]]"
       },
       "CustomDfDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -1222,6 +1230,8 @@
         "description" : "Generic[[DataObject]] containing a config object.\nE.g. used to implement a CustomAction that reads a Webservice."
       },
       "CustomFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -1258,6 +1268,7 @@
         "additionalProperties" : false
       },
       "DataObjectsExporterDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -1276,6 +1287,8 @@
         "description" : "Exports a util[[DataFrame]]that contains properties and metadata extracted from all[[DataObject]]s\nthat are registered in the current[[InstanceRegistry]].\n\nAlternatively, it can export the properties and metadata of all[[DataObject]]s defined in config files. For this, the\nconfiguration \\\"config\\\" has to be set to the location of the config.\n\nExample:\n\n```\ndataObjects = {\n...\ndataobject-exporter {\ntype = DataObjectsExporterDataObject\nconfig = path/to/myconfiguration.conf\n}\n...\n}\n```\n\n\nThe config value can point to a configuration file or a directory containing configuration files.\n\nSEE: Refer to[[ConfigLoader.loadConfigFromFilesystem()]] for details about the configuration loading."
       },
       "DeltaLakeTableDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkConnectSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -1609,6 +1622,8 @@
         "description" : "[[DataObject]]of type DeltaLakeTableDataObject.\nProvides details to access Tables in delta format to an Action.\n\nDelta format maintains a transaction log in a separate _delta_log subfolder.\nThe schema is registered in Metastore by DeltaLakeTableDataObject.\n\nThe following anomalies might occur:\n- table is registered in metastore but path does not exist -> table is dropped from metastore\n- table is registered in metastore but path is empty -> error is thrown. Delete the path to clean up\n- table is registered and path contains parquet files, but _delta_log subfolder is missing -> path is converted to delta format\n- table is not registered but path contains parquet files and _delta_log subfolder -> Table is registered\n- table is not registered but path contains parquet files without _delta_log subfolder -> path is converted to delta format and table is registered\n- table is not registered and path does not exists -> table is created on write\n\n* DeltaLakeTableDataObject implements\n-[[CanMergeDataFrame]]by using DeltaTable.merge API.\n-[[CanEvolveSchema]] by using mergeSchema option.\n- Overwriting partitions is implemented by replaceWhere option in one transaction."
       },
       "ExcelFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -1793,6 +1808,8 @@
         "description" : "A[[DataObject]]backed by an Microsoft Excel data source.\n\nIt manages read and write access and configurations required for[[io.smartdatalake.workflow.action.Action]]s to\nwork on Microsoft Excel (.xslx) formatted files.\n\nReading and writing details are delegated to Apache Spark[[org.apache.spark.sql.DataFrameReader]]\nand[[org.apache.spark.sql.DataFrameWriter]]respectively. The reader and writer implementation is provided by the\n[[https://github.com/crealytics/spark-excel Crealytics spark-excel]]project.\n\nRead Schema:\n\nWhen`useHeader`is set to true (default), the reader will use the first row of the Excel sheet as column names for\nthe schema and not include the first row as data values. Otherwise the column names are taken from the schema.\nIf the schema is not provided or inferred, then each column name is defined as \\\"_c#\\\" where \\\"#\\\" is the column index.\n\nWhen a data object schema is provided, it is used as the schema for the DataFrame. Otherwise if`inferSchema`is\nenabled (default), then the data types of the columns are inferred based on the first`excerptSize`rows\n(excluding the first).\nWhen no schema is provided and`inferSchema` is disabled, all columns are assumed to be of string type."
       },
       "HiveTableDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkConnectSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -2124,6 +2141,8 @@
         "description" : "[[DataObject]] of type Hive.\nProvides details to access Hive tables to an Action"
       },
       "JdbcTableDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -2431,6 +2450,7 @@
         "description" : "[[DataObject]]of type JDBC.\nProvides details for an action to read and write tables in a database through JDBC.\n\nNote that Sparks distributed processing can not directly write to a JDBC table in one transaction.\nJdbcTableDataObject implements this in one transaction by writing to a temporary-table with Spark,\nthen using a separate \\\"insert into ... select\\\" SQL statement to copy data into the final table.\n\nJdbcTableDataObject implements\n-[[CanMergeDataFrame]]by writing a temp table and using one SQL merge statement.\n-[[CanEvolveSchema]] by generating corresponding alter table DDL statements.\n- Overwriting partitions is implemented by using SQL delete and insert statement embedded in one transaction."
       },
       "JmsDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -2499,6 +2519,8 @@
         "description" : "[[DataObject]] of type JMS queue.\nProvides details to an Action to access JMS queues."
       },
       "JsonFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -2638,6 +2660,8 @@
         "description" : "A[[io.smartdatalake.workflow.dataobject.DataObject]]backed by a JSON data source.\n\nIt manages read and write access and configurations required for[[io.smartdatalake.workflow.action.Action]]s to\nwork on JSON formatted files.\n\nReading and writing details are delegated to Apache Spark[[org.apache.spark.sql.DataFrameReader]]\nand[[org.apache.spark.sql.DataFrameWriter]] respectively.\n\nNOTE: By default, the JSON option`multiline` is enabled.\n\nSEE: [[org.apache.spark.sql.DataFrameReader]]\n\nSEE: [[org.apache.spark.sql.DataFrameWriter]]"
       },
       "KafkaTopicDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -2733,6 +2757,7 @@
         "description" : "[[DataObject]]of type KafkaTopic.\nProvides details to an action to read from Kafka Topics using either\n[[org.apache.spark.sql.DataFrameReader]]or[[org.apache.spark.sql.streaming.DataStreamReader]] \n\nKey & value schema can be automatically read from and written to confluent schema registry for Json and Avro.\nJson and Avro can also be parsed with a fixed schema.\n\nCan interpret record timestamp as SDLB partition values by setting datePartitionCol attribute. This allows to use this DataObject as input for PartitionDiffMode.\nThe DataObject does not support writing with SDLB partition values, as timestamp is autogenerated by Kafka using current time.\n\nSupport incremental output and use with DataObjectStateIncrementalMode."
       },
       "PKViolatorsDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -2756,6 +2781,8 @@
         "description" : "Checks for Primary Key violations for all[[DataObject]]s with Primary Keys defined that are registered in the current[[InstanceRegistry]].\nReturns the DataFrame of Primary Key violations.\n\nAlternatively, it can check for Primary Key violations of all[[DataObject]]s defined in config files. For this, the\nconfiguration \\\"config\\\" has to be set to the location of the config.\n\nExample:\n\n```\ndataObjects = {\n...\nprimarykey-violations {\ntype = PKViolatorsDataObject\nconfig = path/to/myconfiguration.conf\n}\n...\n}\n```\n\nSEE: Refer to[[ConfigLoader.loadConfigFromFilesystem()]] for details about the configuration loading."
       },
       "ParquetFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -2891,6 +2918,8 @@
         "description" : "A[[io.smartdatalake.workflow.dataobject.DataObject]]backed by an Apache Hive data source.\n\nIt manages read and write access and configurations required for[[io.smartdatalake.workflow.action.Action]]s to\nwork on Parquet formatted files.\n\nReading and writing details are delegated to Apache Spark[[org.apache.spark.sql.DataFrameReader]]\nand[[org.apache.spark.sql.DataFrameWriter]] respectively.\n\nSEE: [[org.apache.spark.sql.DataFrameReader]]\n\nSEE: [[org.apache.spark.sql.DataFrameWriter]]"
       },
       "RawFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -3034,6 +3063,8 @@
         "description" : "DataObject of type raw for files with unknown content.\nProvides details to an Action to access raw files.\nBy specifying format you can custom Spark data formats"
       },
       "RelaxedCsvFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -3182,6 +3213,8 @@
         "description" : "A[[DataObject]] which allows for more flexible CSV parsing.\nThe standard CsvFileDataObject doesnt support reading multiple CSV-Files with different column order, missing columns\nor additional columns.\nRelaxCsvFileDataObject works more like reading JSON-Files. You need to define a schema, then it tries to read every file\nwith that schema independently of the column order, adding missing columns and removing superfluous ones.\n\nCSV files are read by Spark as whole text files and then parsed manually with Sparks CSV parser class. You can therefore use the\nnormal CSV options of spark, but some properties are fixed, e.g. header=true, inferSchema=false, enforceSchema (ignored).\n\nNOTE: This data object sets the following default values for`csvOptions`: delimiter = \\\",\\\", quote = null\nAll other`csvOption` default to the values defined by Apache Spark.\n\nSEE: [[org.apache.spark.sql.DataFrameReader]]\n\nSEE: [[org.apache.spark.sql.DataFrameWriter]] \n\nIf mode is permissive you can retrieve the corrupt input record by adding <options.columnNameOfCorruptRecord> as field to the schema.\nRelaxCsvFileDataObject also supports getting an error msg by adding \\\"<options.columnNameOfCorruptRecord>_msg\\\" as field to the schema."
       },
       "SFtpFileRefDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -3224,6 +3257,8 @@
         "description" : "Connects to SFtp files\nNeeds java library \\\"com.hieronymus % sshj % 0.21.1\\\"\nThe following authentication mechanisms are supported\n-> public/private-key: private key must be saved in ~/.ssh, public key must be registered on server.\n-> user/pwd authentication: user and password is taken from two variables set as parameters.\nThese variables could come from clear text (CLEAR), a file (FILE) or an environment variable (ENV)"
       },
       "SnowflakeTableDataObject" : {
+        "x-readSubFeedTypes" : [ "ParameterSubFeed", "SnowparkSubFeed", "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "SnowparkSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -3485,6 +3520,7 @@
         "description" : "[[DataObject]] of type SnowflakeTableDataObject.\nProvides details to access Snowflake tables via an action\nCan be used both for interacting with Snowflake through Spark with JDBC,\nas well as for actions written in the Snowpark API that run directly on Snowflake"
       },
       "SplunkDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -3535,6 +3571,8 @@
         "description" : "[[DataObject]] of type Splunk.\nProvides details to an action to access Splunk logs."
       },
       "TickTockHiveTableDataObject" : {
+        "x-readSubFeedTypes" : [ "SparkSubFeed" ],
+        "x-writeSubFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -3859,6 +3897,8 @@
         "additionalProperties" : false
       },
       "WebserviceFileDataObject" : {
+        "x-readSubFeedTypes" : [ "FileSubFeed" ],
+        "x-writeSubFeedTypes" : [ "FileSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -6264,6 +6304,7 @@
     },
     "Action" : {
       "CopyAction" : {
+        "x-subFeedTypes" : [ "ScalaSubFeed", "SnowparkSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -6444,6 +6485,7 @@
         "description" : "This[[Action]] copies data between an input and output DataObject using DataFrames.\nThe input DataObject reads the data and converts it to a DataFrame according to its definition.\nThe DataFrame might be transformed using SQL or DataFrame transformations.\nThen the output DataObjects writes the DataFrame to the output according to its definition."
       },
       "CustomDataFrameAction" : {
+        "x-subFeedTypes" : [ "SnowparkSubFeed", "SparkConnectSubFeed", "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -6612,6 +6654,7 @@
         "description" : "This[[Action]] transforms data between many input and output DataObjects using DataFrames.\nCustomDataFrameAction allows to define transformations between n input DataObjects and m output DataObjects,\nbut is is recommended to implement n:1 or 1:m transformations, as otherwise dependencies between DataObjects might not be accurate anymore.\nThe input DataFrames might be transformed using SQL or DataFrame transformations.\nWhen chaining multiple transformers, output DataFrames of previous transformers are available as input DataFrames for later transformers by their corresponding name."
       },
       "CustomFileAction" : {
+        "x-subFeedTypes" : [ "FileSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -6715,6 +6758,7 @@
         "description" : "[[Action]] to transform files between two Hadoop Data Objects.\nThe transformation is executed in distributed mode on the Spark executors.\nA custom file transformer must be given, which reads a file from Hadoop and writes it back to Hadoop."
       },
       "CustomScriptAction" : {
+        "x-subFeedTypes" : [ "ParameterSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -6772,6 +6816,7 @@
         "description" : "[[Action]] execute script after multiple input DataObjects are ready, notifying multiple output DataObjects when script succeeded.\n\nNote that this action can also be used to give your data pipeline additional structure, e.g. adding a decision point after several actions have been executed."
       },
       "DeduplicateAction" : {
+        "x-subFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -6957,6 +7002,7 @@
         "description" : "This[[Action]]copies and deduplicates data between an input and output DataObject using DataFrames.\nDeduplication keeps the last record for every key, also after it has been deleted in the source.\nThe DataFrame might be transformed using SQL or DataFrame transformations. These transformations are applied before the deduplication.\n\nDeduplicateAction adds an additional Column[[TechnicalTableColumn.captured]]. It contains the timestamp of the last occurrence of the record in the source.\nThis creates lots of updates. Especially when using saveMode.Merge it is better to set[[TechnicalTableColumn.captured]]to the last change of the record in the source. Use updateCapturedColumnOnlyWhenChanged = true to enable this optimization.\n\nDeduplicateAction needs a transactional table (e.g.[[TransactionalTableDataObject]]) as output with defined primary keys.\nIf output implements[[CanMergeDataFrame]] , saveMode.Merge can be enabled by setting mergeModeEnable = true. This allows for much better performance."
       },
       "FileTransferAction" : {
+        "x-subFeedTypes" : [ "FileSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -7041,6 +7087,7 @@
         "description" : "[[Action]] to transfer files between SFtp, Hadoop and local Fs."
       },
       "HistorizeAction" : {
+        "x-subFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -7248,6 +7295,7 @@
         "description" : "This[[Action]]historizes data between an input and output DataObject using DataFrames.\nHistorization creates a technical history of data by creating valid-from/to columns.\nThe DataFrame might be transformed using SQL or DataFrame transformations. These transformations are applied before the deduplication.\n\nHistorizeAction needs a transactional table (e.g. implementation of[[TransactionalTableDataObject]]) as output with defined primary keys.\n\nNormal historization join new with all existing data, and rewrites all data in output table. This is not optimal from\na performance perspective.\nIt can be optimized if output object supports[[CanMergeDataFrame]] . In that case you can\nset mergeModeEnable=true to use incremental historization, which does not rewrite all data in output table. It still needs to\njoin new data with all existing data, but uses hash values to minimize data transfer.\nIf you have change-data-capture (CDC) information available to identify deleted records, you can set\nmergeModeCDCColumn and mergeModeCDCDeletedValue to even avoid the join between new and existing data. This is optimal from\na performance perspective."
       },
       "ProxyAction" : {
+        "x-subFeedTypes" : [ "SparkSubFeed" ],
         "type" : "object",
         "properties" : {
           "type" : {

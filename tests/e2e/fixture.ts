@@ -103,3 +103,35 @@ export const SECRET_PROVIDERS_ELEMENT = {
 
 /** the first property of global, used to check that nodes start out collapsed */
 export const GLOBAL_FIRST_PROPERTY_LABEL = 'kryoClasses[string]';
+
+/**
+ * Elements of the newest schema with the SubFeed types listed for them in src/example-schema.json, used to check
+ * the SubFeed type chips and filter. The older schema does not list any SubFeed types.
+ */
+export const SUB_FEED_TYPES = {
+  /** the short label of the SubFeed type the filter specs select */
+  filterLabel: 'SparkConnect',
+  /** a DataObject which supports the filtered SubFeed type for reading and writing */
+  supportingDataObject: HIVE_TABLE_DATA_OBJECT,
+  /** a DataObject which does not support the filtered SubFeed type */
+  unsupportingDataObject: {
+    name: 'JdbcTableDataObject',
+    label: 'JdbcTableDataObject{ }',
+    searchAncestors: 'dataObjects>JdbcTableDataObject'
+  },
+  /** a property of {@link unsupportingDataObject}, which is hidden along with it */
+  unsupportingDataObjectProperty: {
+    name: 'table',
+    searchAncestors: 'dataObjects>JdbcTableDataObject>table'
+  },
+  /** an Action and the short labels of its SubFeed types */
+  action: {
+    name: 'CopyAction',
+    searchAncestors: 'actions>CopyAction',
+    labels: ['Snowpark', 'Spark', 'SparkConnect']
+  },
+  /** listed in the schema, CopyAction lists Scala, but neither shown nor offered in the filter */
+  ignoredLabels: ['Scala', 'Parameter'],
+  /** all the filter offers for the newest schema */
+  filterOptions: ['File', 'Snowpark', 'Spark', 'SparkConnect']
+};

@@ -3,11 +3,12 @@ import { render, screen } from '@testing-library/react';
 import NodeSearch from './NodeSearch';
 import { ClassNode, PropertyNode, RootNode, SchemaNode } from '../utils/SchemaNode';
 import userEvent from '@testing-library/user-event';
+import { noNodeHidden } from '../utils/SubFeedTypeFilter';
 
 test('search finds matching elements when providing two characters', async () => {
   const schema = createDummySchema();
 
-  render(<NodeSearch schema={schema} selectedNode={null} setSelectedNode={() => {}} />);
+  render(<NodeSearch schema={schema} selectedNode={null} setSelectedNode={() => {}} isHidden={noNodeHidden} />);
   const searchBar = screen.getByPlaceholderText('Search');
 
   await userEvent.type(searchBar, 'pr');
@@ -25,7 +26,7 @@ test('search finds matching elements when providing two characters', async () =>
 test('search finds matching elements when providing more than two characters', async () => {
   const schema = createDummySchema();
 
-  render(<NodeSearch schema={schema} selectedNode={null} setSelectedNode={() => {}} />);
+  render(<NodeSearch schema={schema} selectedNode={null} setSelectedNode={() => {}} isHidden={noNodeHidden} />);
   const searchBar = screen.getByPlaceholderText('Search');
 
   await userEvent.type(searchBar, 'class');
@@ -37,6 +38,19 @@ test('search finds matching elements when providing more than two characters', a
   expect(screen.getByText('property2>class3')).toBeInTheDocument();
   expect(screen.queryByText('property1')).not.toBeInTheDocument();
   expect(screen.queryByText('property2')).not.toBeInTheDocument();
+  expect(screen.queryByText('property3')).not.toBeInTheDocument();
+  expect(screen.queryByText('property4')).not.toBeInTheDocument();
+});
+
+test('search does not find hidden elements and their descendants', async () => {
+  const schema = createDummySchema();
+  const isHidden = (n: SchemaNode) => n instanceof ClassNode && n.className === 'class3';
+
+  render(<NodeSearch schema={schema} selectedNode={null} setSelectedNode={() => {}} isHidden={isHidden} />);
+  const searchBar = screen.getByPlaceholderText('Search');
+
+  await userEvent.type(searchBar, 'pr');
+  expect(screen.getAllByText('property1').length).toBe(2);
   expect(screen.queryByText('property3')).not.toBeInTheDocument();
   expect(screen.queryByText('property4')).not.toBeInTheDocument();
 });

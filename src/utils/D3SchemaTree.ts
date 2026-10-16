@@ -5,6 +5,7 @@ import D3Zoom from './D3Zoom';
 import D3NodePainter, { nodeClass, NodeSelection, SchemaTreeColors } from './D3NodePainter';
 import D3LinkPainter from './D3LinkPainter';
 import { formatNodeId, getCoordinates, labelVisitor, setCoordinates, swap } from './D3NodeUtils';
+import { NodeFilter } from './SubFeedTypeFilter';
 
 const animationDurationMillis = 400;
 const heightPerNode = 35;
@@ -27,6 +28,7 @@ export default class D3SchemaTree {
   private readonly zoom: D3Zoom;
   private readonly nodePainter: D3NodePainter;
   private readonly linkPainter: D3LinkPainter;
+  private drawn = false;
 
   constructor(schema: SchemaNode, treeSvg: SVGSVGElement, setSelectedNode: (n: SchemaNode | null) => void,
               zoom: D3Zoom, colors: SchemaTreeColors) {
@@ -47,7 +49,19 @@ export default class D3SchemaTree {
     this.setSelectedNode(null);
     this.schema.traverse(expandOnlyRootNodeVisitor);
     const root = this.drawTree();
+    this.drawn = true;
     this.centerNode(this.getMiddleChild(root), 0);
+  }
+
+  /**
+   * Hides the nodes for which isHidden is true, together with their subtrees, and redraws the tree if it has
+   * been drawn already. The expand/collapse state of the nodes is kept, so they reappear as they were.
+   */
+  filterNodes(isHidden: NodeFilter): void {
+    this.schema.traverse(toVisitor(n => n.hidden = isHidden(n)));
+    if (this.drawn) {
+      this.drawTree();
+    }
   }
 
   private drawTree(): HierarchyPointNode<SchemaNode> {
@@ -157,7 +171,7 @@ export default class D3SchemaTree {
    * Toggle children on node click.
    */
   private toggleNode(node: HierarchyPointNode<SchemaNode>): void {
-    if (node.data.children.length === 0) {
+    if (node.data.unhiddenChildren.length === 0) {
       return;
     }
     const isOpen = node.data.showChildren;

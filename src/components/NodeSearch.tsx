@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from '../utils/SchemaNode';
 import { Autocomplete, AutocompleteOption, ListItemContent, Typography } from '@mui/joy';
+import { NodeFilter } from '../utils/SubFeedTypeFilter';
 
 interface NodeOption {
   label: string,
@@ -8,7 +9,10 @@ interface NodeOption {
   node: SchemaNode
 }
 
-export default function NodeSearch(props: { schema: SchemaNode | null, selectedNode: SchemaNode | null, setSelectedNode: (node: SchemaNode | null) => void }) {
+export default function NodeSearch(props: {
+  schema: SchemaNode | null, selectedNode: SchemaNode | null, setSelectedNode: (node: SchemaNode | null) => void,
+  isHidden: NodeFilter
+}) {
   const [options, setOptions] = useState<NodeOption[]>([]);
   const [key, setKey] = useState(0); // the key is needed to trigger a rerender of the autocomplete component
 
@@ -17,12 +21,12 @@ export default function NodeSearch(props: { schema: SchemaNode | null, selectedN
     // which leads to errors because the previously selected element is no longer found, so we have to rerender
     rerenderSearch();
     if (props.schema) {
-      setOptions(buildNodeOptions(props.schema));
+      setOptions(buildNodeOptions(props.schema, props.isHidden));
     } else {
       setOptions([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.schema]);
+  }, [props.schema, props.isHidden]);
 
   useEffect(() => {
     // when the selectedNode is set to null we rerender the search because this means there was a refresh
@@ -40,7 +44,7 @@ export default function NodeSearch(props: { schema: SchemaNode | null, selectedN
     <Autocomplete key={key}
                   options={options}
                   placeholder="Search"
-                  sx={{minWidth: 500, width: '35%', margin: 'auto'}}
+                  sx={{minWidth: 300, width: '35%', margin: 'auto'}}
                   onChange={(_, o: NodeOption | null) => o && props.setSelectedNode(o.node)}
                   noOptionsText="No element found or not enough characters provided."
                   filterOptions={(allOptions, state) =>
@@ -68,10 +72,14 @@ function OptionWithAncestors(props: { option: NodeOption }) {
   </ListItemContent>)
 }
 
-function buildNodeOptions(schema: SchemaNode): NodeOption[] {
+function buildNodeOptions(schema: SchemaNode, isHidden: NodeFilter): NodeOption[] {
   const options: NodeOption[] = [];
 
   function addOptionsRecursively(node: SchemaNode, parentAncestors: string[]): void {
+    // the elements hidden in the graph are not offered either, together with their subtrees
+    if (isHidden(node)) {
+      return;
+    }
     const name = node.accept(nodeNameVisitor);
     const ancestors = [...parentAncestors, name];
     const option = {label: name, ancestors, node};

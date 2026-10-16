@@ -7,12 +7,14 @@ import GraphControlButtons from './GraphControlButtons';
 import StyledSvg from './StyledSvg';
 import GraphLegend from './GraphLegend';
 import { SchemaTreeColors } from '../utils/D3NodePainter';
+import { NodeFilter } from '../utils/SubFeedTypeFilter';
 
 /**
  * Component for rendering the schema tree and its associated components like the zoom buttons and the legend.
  */
 export default function SchemaGraph(props: {
-  schema: SchemaNode | null, setSelectedNode: (n: SchemaNode | null) => void, selectedNode: SchemaNode | null
+  schema: SchemaNode | null, setSelectedNode: (n: SchemaNode | null) => void, selectedNode: SchemaNode | null,
+  isHidden: NodeFilter
 }) {
   const treeSvg = useRef<SVGSVGElement>();
   const [schemaTree, setSchemaTree] = useState<D3SchemaTree>();
@@ -37,11 +39,18 @@ export default function SchemaGraph(props: {
       const newZoom = new D3Zoom(treeSvg.current.parentElement as any, treeSvg.current);
       setZoom(newZoom);
       const newSchemaTree = new D3SchemaTree(props.schema, treeSvg.current, props.setSelectedNode, newZoom, schemaTreeColors);
+      newSchemaTree.filterNodes(props.isHidden);
       newSchemaTree.initTree();
       setSchemaTree(newSchemaTree);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.schema, schemaTreeColors]);
+
+  useEffect(() => {
+    // a new tree is filtered when it is created, so only a change of the filter needs to be applied here
+    schemaTree?.filterNodes(props.isHidden);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.isHidden]);
 
   useEffect(() => {
     if (props.selectedNode && schemaTree) {

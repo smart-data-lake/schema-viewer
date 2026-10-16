@@ -29,8 +29,20 @@ export const detailsPanelTitle = (page: Page, name: string): Locator =>
 /** the bar above the graph with the schema dropdown, the search and the buttons */
 export const header = (page: Page): Locator => page.getByTestId('schema-viewer-header');
 
-/** the schema dropdown, which is a button and not the only combobox in the header */
-export const schemaSelector = (page: Page): Locator => page.locator('button[role="combobox"]');
+/** the schema dropdown, which is not the only combobox in the header */
+export const schemaSelector = (page: Page): Locator => page.getByRole('combobox', { name: 'Schema version' });
+
+/** the dropdown filtering the Actions and DataObjects by the engines (SubFeed types) they support */
+export const subFeedTypeSelector = (page: Page): Locator => page.getByRole('combobox', { name: 'Engines' });
+
+/** chooses SubFeed types in {@link subFeedTypeSelector} by their short label, e.g. 'SparkConnect' */
+export async function selectSubFeedTypes(page: Page, ...labels: string[]): Promise<void> {
+  await subFeedTypeSelector(page).click();
+  for (const label of labels) {
+    await page.getByRole('option', { name: label, exact: true }).click();
+  }
+  await page.keyboard.press('Escape');
+}
 
 export const searchField = (page: Page): Locator => page.getByPlaceholder('Search');
 

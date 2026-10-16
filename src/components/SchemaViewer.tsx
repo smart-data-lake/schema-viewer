@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import DetailsPanel from './DetailsPanel';
 import SchemaViewerHeader, { headerSpacing } from './SchemaViewerHeader';
 import SchemaGraph from './SchemaGraph';
@@ -21,6 +21,8 @@ import {
 } from '../utils/SchemaSerialization';
 import DownloadButton from './DownloadButton';
 import HelpButton from './HelpButton';
+import SubFeedTypeSelector from './SubFeedTypeSelector';
+import { closestVisibleNode, collectSubFeedTypes, createSubFeedTypeFilter } from '../utils/SubFeedTypeFilter';
 
 interface SchemaViewerProps {
   /**
@@ -44,6 +46,11 @@ export default function SchemaViewer(props: SchemaViewerProps) {
   const [selectedNode, setSelectedNode] = useState<SchemaNode | null>(null);
   const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
   const [schemaBlob, setSchemaBlob] = useState<Blob | null>(null); // for download
+  // kept across schema versions; versions which do not list SubFeed types are not affected by it
+  const [selectedSubFeedTypes, setSelectedSubFeedTypes] = useState<string[]>([]);
+  const isHidden = useMemo(() => createSubFeedTypeFilter(selectedSubFeedTypes), [selectedSubFeedTypes]);
+  // only updated once a schema is loaded, so that the filter does not disappear while switching between versions
+  const [availableSubFeedTypes, setAvailableSubFeedTypes] = useState<string[]>([]);
   // the path of the element to select once the schema is parsed: initially the one from the url, and after
   // a switch of the schema version the one which was selected before, so that the user stays on the element
   const pathToRestore = useRef<string | null>(getPathFromUrlParams());
@@ -91,9 +98,24 @@ export default function SchemaViewer(props: SchemaViewerProps) {
       const node = resolvePath(pathToRestore.current, schema);
       pathToRestore.current = null;
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      node && setSelectedNode(node);
+      node && setSelectedNode(closestVisibleNode(node, isHidden));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schema]);
+
+  useEffect(() => {
+    if (schema) {
+      setAvailableSubFeedTypes(collectSubFeedTypes(schema));
     }
   }, [schema]);
+
+  useEffect(() => {
+    // like an element which does not exist in a schema version, one which is filtered out falls back to its ancestor
+    if (selectedNode) {
+      setSelectedNode(closestVisibleNode(selectedNode, isHidden));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHidden]);
 
   return (
     <CssVarsProvider theme={defaultTheme}>
@@ -102,7 +124,12 @@ export default function SchemaViewer(props: SchemaViewerProps) {
           <SchemaViewerHeader>
             <SchemaSelector loadSchemaNames={props.loadSchemaNames} selectedSchemaName={selectedSchemaName}
                             setSelectedSchemaName={setSelectedSchemaName} />
-            <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
+            {/* hidden for schema versions which do not list SubFeed types, where it would not have any effect */}
+            {availableSubFeedTypes.length > 0 &&
+                <SubFeedTypeSelector availableTypes={availableSubFeedTypes} selectedTypes={selectedSubFeedTypes}
+                                     setSelectedTypes={setSelectedSubFeedTypes} />}
+            <NodeSearch schema={schema} selectedNode={selectedNode} setSelectedNode={setSelectedNode}
+                        isHidden={isHidden} />
             {/* no auto margin here: the free space is split by the auto margins of the search, which centers it */}
             <Box sx={{ display: 'flex', gap: headerSpacing }}>
               <HelpButton />
@@ -111,7 +138,8 @@ export default function SchemaViewer(props: SchemaViewerProps) {
             </Box>
           </SchemaViewerHeader>
           <Box sx={{flex: 1}}>
-            <SchemaGraph schema={schema} setSelectedNode={setSelectedNode} selectedNode={selectedNode} />
+            <SchemaGraph schema={schema} setSelectedNode={setSelectedNode} selectedNode={selectedNode}
+                         isHidden={isHidden} />
           </Box>
         </Box>
         {/* we hide the info panel with display: 'none' to keep its state when it is closed.

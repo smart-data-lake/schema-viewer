@@ -32,7 +32,8 @@ export default function SchemaSelector(props: { loadSchemaNames: () => Promise<s
   return (
     <Select value={props.selectedSchemaName ?? ''}
             onChange={(_, newValue) => newValue && props.setSelectedSchemaName(newValue)}
-            sx={{width: 300}}>
+            sx={{width: 300}}
+            slotProps={{button: {'aria-label': 'Schema version'}}}>
       {schemaNames.map(schema => <Option key={schema} value={schema}>{schema}</Option>)}
     </Select>
   );

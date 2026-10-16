@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Divider, Dropdown, IconButton, Menu, MenuButton, MenuItem, styled, Tooltip, Typography } from '@mui/joy';
-import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor } from '../utils/SchemaNode';
+import { Box, Chip, Divider, Dropdown, IconButton, Menu, MenuButton, MenuItem, styled, Tooltip, Typography } from '@mui/joy';
+import { ClassNode, PropertyNode, SchemaNode, SchemaVisitor, SubFeedTypes } from '../utils/SchemaNode';
 import { Share } from '@mui/icons-material';
 import { deprecatedVisitor } from '../utils/D3NodeUtils';
+import { formatSubFeedType, sortSubFeedTypes, subFeedTypesVisitor } from '../utils/SubFeedTypeFilter';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm'; // Github flavoured markdown (for hyperlinks)
 
@@ -16,7 +17,8 @@ export default function DetailsPanelContent(props: {
   const nodeType = props.node.accept(nodeTypeVisitor);
   const nodeDescription = props.node.accept(nodeDescriptionVisitor);
   const deprecated = props.node.accept(deprecatedVisitor);
-  
+  const subFeedTypes = props.node.accept(subFeedTypesVisitor);
+
   return (
     <Box sx={{flex: 1, paddingLeft: 2, paddingRight: 2, overflow: 'auto'}}>
       <Box sx={{display: 'flex', justifyContent: 'space-between', marginTop: 3, alignItems: 'center'}}>
@@ -28,6 +30,7 @@ export default function DetailsPanelContent(props: {
       <SectionDivider />
       <SectionTitle>Type</SectionTitle>
       <SectionText>{nodeType}</SectionText>
+      {subFeedTypes && <SubFeedTypesSection subFeedTypes={subFeedTypes} />}
       <SectionDivider />
       <SectionTitle>Definition</SectionTitle>
       <Typography component={'div'} level="body-md" sx={markdownStyles}>
@@ -51,6 +54,33 @@ const SectionTitle = (props: { children: string }) => {
 const SectionText = (props: { children?: string }) => {
   return (
     <Typography level="body-md" sx={{wordBreak: 'break-word', whiteSpace: 'pre-wrap'}}>{props.children}</Typography>);
+}
+
+function SubFeedTypesSection(props: { subFeedTypes: SubFeedTypes }) {
+  const s = props.subFeedTypes;
+  return (
+    <>
+      <SectionDivider />
+      <SectionTitle>Engines</SectionTitle>
+      {s.kind === 'Action'
+        ? <SubFeedTypeChips types={s.types} />
+        : <>
+          <SubFeedTypeChips label="Read" types={s.read} />
+          <SubFeedTypeChips label="Write" types={s.write} />
+        </>}
+    </>
+  );
+}
+
+function SubFeedTypeChips(props: { label?: string, types: string[] }) {
+  return (
+    <Box sx={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, marginBottom: 1}}>
+      {props.label && <Typography level="body-md" sx={{minWidth: 50}}>{props.label}</Typography>}
+      {props.types.length > 0
+        ? sortSubFeedTypes(props.types).map(t => <Chip key={t} size="sm" variant="soft" color="primary" title={t}>{formatSubFeedType(t)}</Chip>)
+        : <Typography level="body-md" sx={{fontStyle: 'italic'}}>none</Typography>}
+    </Box>
+  );
 }
 
 /**
